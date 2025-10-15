@@ -1,0 +1,1 @@
+//Display details, filters, or graph metadata
