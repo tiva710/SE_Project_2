@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, MessageSquare, Trash2, Filter } from 'lucide-react';
+import { Upload, MessageSquare, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
   const handleFileUpload = (e) => {
@@ -13,9 +13,9 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
     return (
       <button
         onClick={onToggle}
-        className="fixed left-0 top-1/2 -translate-y-1/2 bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700 z-50"
+        className="fixed left-4 top-1/2 -translate-y-1/2 bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700 z-50"
       >
-        <Filter className="w-5 h-5" />
+        <ChevronRight className="w-5 h-5" />
       </button>
     );
   }
@@ -25,7 +25,7 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-teal-400">ReqTrace</h2>
         <button onClick={onToggle} className="p-1 hover:bg-gray-700 rounded">
-          <Filter className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
       </div>
 
@@ -47,7 +47,7 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         <h3 className="text-sm font-semibold text-gray-400 uppercase">Quick Actions</h3>
         <button className="w-full flex items-center gap-2 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
           <MessageSquare className="w-5 h-5" />
-          <span>Start Transcription</span>
+          <span>Show Transcriptions</span>
         </button>
         <button 
           onClick={onClearGraph}
