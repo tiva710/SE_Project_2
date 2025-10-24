@@ -1,21 +1,26 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
 
-class Entity(BaseModel):
-    id: Optional[str] = None
-    name: str
+class Node(BaseModel):
+    id: str
+    label: str
+    props: Dict[str, Any] = Field(default_factory=dict)
+
+class Link(BaseModel):
     type: str
-    confidence: Optional[float] = 1.0
-
-class Relationship(BaseModel):
     source: str
     target: str
-    type: str
-    confidence: float = 1.0
+    props: Dict[str, Any] = Field(default_factory=dict)
 
-class ConversationInput(BaseModel):
-    text: str
+class GraphResponse(BaseModel):
+    nodes: List[Node]
+    links: List[Link]
 
-class ConversationResponse(BaseModel):
-    entities: List[Entity]
-    relationships: List[Relationship]
+class NeighborhoodQuery(BaseModel):
+    # Optional center node id; if omitted, returns the overall subgraph for the label
+    id: Optional[str] = None
+    # Number of hops from the center id; default 1
+    k: int = 1
+    # Whether to include only relationships among returned nodes
+    induced: bool = True
+
