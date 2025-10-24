@@ -35,12 +35,12 @@ function HelpView() {
         <h3 className="text-lg font-semibold text-teal-400 mb-3">Need More Help?</h3>
         <p className="text-gray-300 mb-4">Check out our comprehensive documentation or reach out to the team.</p>
         <div className="flex gap-4">
-          <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">
+          <a href = "https://github.com/tiva710/SE_Project_2/wiki" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">
             View Documentation
-          </button>
-          <button className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+          </a>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfnR0p3P9GXqE0vYL3POOB-4eRcw-czH4RW3DlPySVc50C3LQ/viewform?usp=dialog" className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
             Contact Support
-          </button>
+          </a>
         </div>
       </div>
     </div>

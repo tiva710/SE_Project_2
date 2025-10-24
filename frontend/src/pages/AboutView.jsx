@@ -3,7 +3,7 @@ import React from 'react';
 function AboutView() {
   const repoUrl = "https://github.com/tiva710/SE_Project_2";
   const wikiUrl = "https://github.com/tiva710/SE_Project_2/wiki";
-  const issuesUrl = "https://github.com/tiva710/SE_Project_2/issues";
+  const issuesUrl ="https://docs.google.com/forms/d/e/1FAIpQLSfnR0p3P9GXqE0vYL3POOB-4eRcw-czH4RW3DlPySVc50C3LQ/viewform?usp=dialog";
   const docsUrl = "https://github.com/tiva710/SE_Project_2/tree/main/docs";
 
   return (
