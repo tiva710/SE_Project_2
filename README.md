@@ -1,15 +1,77 @@
-# SE_Project_2
-- Title, overview, intended users, links to docs & wiki, licence, citation, badges (CI, coverage), support, contact, quick start snippet. 
+# ReqTrace
+---
+## Overview 
+**ReqTrace** is 
 
-To install 
-pip install fastapi==0.111.1 uvicorn==0.24.0 pydantic==1.10.12
-pip install spacy==3.5.4
-pip install neo4j==6.0.2 neo4j-driver==5.28.2
-pip install python-dotenv==1.0.0 requests==2.32.0
-pip install nltk==3.8.1 pandas==2.1.1 numpy==1.26.2 scikit-learn==1.3.2
+---
 
+## Intended Users 
+ReqTrace is intended for 
 
-pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
+For detailed use cases, see [USE_CASES.md](docs/USE_CASES.md)
 
+---
 
-uvicorn app.main:app --reload 
+## Road Map 
+Milestones  
+
+---
+
+## Quick Start 
+See [INSTALL.md](docs/INSTALL.md) and [USAGE.md](docs/USAGE.md) for step-by-step instructions.  
+
+Quick Start snippet: 
+
+Backend: 
+
+```bash
+cd backend
+python3 -m venv .venv        # create virtual environment
+source .venv/bin/activate    # activate on macOS/Linux
+# OR for Windows PowerShell:
+# .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Frontend: 
+```bash
+cd frontend
+npm install 
+npm run dev
+```
+---
+
+##  ReqTrace Demo
+Watch a quick video of ReqTrace in action! 
+
+---
+
+## Documentation
+Complete documentation is available in the [Wiki](https://github.com/tiva710/SE_Project_2/wiki)!
+
+---
+
+## Badges
+CI/CD: 
+
+Test Coverage: 
+
+Build Status: 
+
+Doi: 
+
+---
+
+## Support & Contact
+- [GitHub isses](https://github.com/tiva710/SE_Project_2/issues)
+- [Support Form](https://docs.google.com/forms/d/e/1FAIpQLSfnR0p3P9GXqE0vYL3POOB-4eRcw-czH4RW3DlPySVc50C3LQ/viewform)
+
+--- 
+
+## Licence & Citation 
+- [MIT License](docs/LICENSE.md)
+- [Citation](docs/CITATION.md)
+
+---
+## Contributors 
