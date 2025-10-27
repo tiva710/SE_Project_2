@@ -1,0 +1,14 @@
+from enum import Enum
+
+class RelType(str, Enum):
+    DEPENDS_ON = "DEPENDS_ON"
+    SATISFIED_BY = "SATISFIED_BY"
+    REFINES = "REFINES"
+    CONSTRAINS = "CONSTRAINS"
+    SUPPORTED_BY = "SUPPORTED_BY"
+    VALIDATED_BY = "VALIDATED_BY"
+    OWNED_BY = "OWNED_BY"
+    DERIVED_FROM = "DERIVED_FROM"
+    MENTIONS = "MENTIONS"
+    AFFECTS = "AFFECTS"
+    SUPPORTED_BY_ = "SUPPORTED_BY"  # alias if needed
