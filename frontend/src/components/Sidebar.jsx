@@ -1,7 +1,11 @@
-import React from 'react';
+import React, {useContext} from 'react';
+import { AuthContext } from "../context/AuthContext";
 import { Upload, MessageSquare, Trash2, ChevronLeft, ChevronRight, Clock, User } from 'lucide-react';
+import LoginButton from "./LoginButton";
 
 function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
+  const { user, login, logout } = useContext(AuthContext);
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -10,11 +14,13 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
   };
 
   // Mock session history: will be replaced w real data from backend
-  const sessionHistory = [
+  const sessionHistory = user 
+  ? [
     { id: 1, name: 'Requirements Discussion', date: '2024-10-20', nodes: 12 },
     { id: 2, name: 'Feature Planning', date: '2024-10-19', nodes: 8 },
     { id: 3, name: 'Stakeholder Meeting', date: '2024-10-18', nodes: 15 },
-  ];
+  ]
+  : [];
 
   if (!isOpen) {
     return (
@@ -36,20 +42,36 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         </button>
       </div>
 
-      {/* User Section - Placeholder for future login */}
+      {/* Login/Signup Section */}
       <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
-            <User className="w-5 h-5" />
-          </div>
+          {user?.picture ? (
+            <img
+              src={user.picture}
+              alt="User avatar"
+              className="w-10 h-10 rounded-full"
+            />
+          ) : (         
+            <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5" />
+            </div>
+          )}
           <div className="flex-1">
-            <p className="text-sm font-medium">Guest User</p>
-            <p className="text-xs text-gray-400">Not logged in</p>
+            <p className="text-sm font-medium">
+              {user ? user.email : "Guest User"}
+            </p>
+            <p className="text-xs text-gray-400">
+              {user ? user.email: "Not logged in"}
+            </p>
           </div>
         </div>
-        <button className="w-full mt-2 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 rounded text-sm transition-colors">
-          Login / Sign Up
-        </button>
+        {!user && <LoginButton/>}
+        {user && (
+          <button
+            onClick={logout}
+            className="w-full mt-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors"
+          >Logout</button>
+        )}
       </div>
 
       {/* Upload Section */}
@@ -115,34 +137,6 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
           💾 Sessions saved automatically
         </p>
       </div>
-
-      {/* Graph Views */}
-      {/* <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">Graph Views</h3>
-        <div className="space-y-2">
-          {['Dependency Chain', 'Stakeholder Impact', 'Feature Clusters', 'All Nodes'].map(view => (
-            <button
-              key={view}
-              className="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm"
-            >
-              {view}
-            </button>
-          ))}
-        </div>
-      </div> */}
-
-      {/* Filters */}
-      {/* <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">Filters</h3>
-        <div className="space-y-2">
-          {['Features', 'Stakeholders', 'Constraints', 'Requirements'].map(filter => (
-            <label key={filter} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" defaultChecked className="rounded" />
-              <span>{filter}</span>
-            </label>
-          ))}
-        </div>
-      </div> */}
     </aside>
   );
 }
