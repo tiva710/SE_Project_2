@@ -1,8 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional
+from enum import Enum
 
-class Entity(BaseModel):
-    id: Optional[str] = None
-    name: str
-    type: str  # FEATURE | STAKEHOLDER | CONSTRAINT
-    confidence: Optional[float] = 1.0
+class Label(str, Enum):
+    Feature = "Feature"
+    Requirement = "Requirement"
+    Stakeholder = "Stakeholder"
+    Constraint = "Constraint"
+    TestCase = "TestCase"
+    Design = "Design"
+    ConversationTurn = "ConversationTurn"
