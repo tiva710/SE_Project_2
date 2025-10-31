@@ -19,31 +19,46 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
 
   // 🎧 Handle audio upload
   const handleAudioUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
+  setUploading(true);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    try {
-      const res = await axios.post('http://127.0.0.1:8000/transcribe', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:8000/transcribe/transcribe",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
 
-      if (res.data && res.data.entry) {
-        setTranscriptions((prev) => [res.data.entry, ...prev]);
-        alert(`✅ Transcribed: ${file.name}`);
-      } else {
-        alert('Error: No transcription returned from backend');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error during transcription upload');
-    } finally {
-      setUploading(false);
+    console.log("Backend response:", res.data); // 🧠 Debug line
+
+    // ✅ Safely handle both structures
+    const entry = res.data.entry || res.data?.data?.entry;
+    if (entry) {
+      setTranscriptions((prev) => [entry, ...prev]);
+      alert(`✅ Transcribed: ${file.name}`);
+    } else if (res.data.message) {
+      alert(`✅ ${res.data.message}`);
+    } else {
+      console.warn("Unexpected backend response:", res.data);
+      alert("⚠️ Unexpected backend response (check console)");
     }
-  };
+  } catch (err) {
+    console.error("Upload failed:", err.response || err.message);
+    const message =
+      err.response?.data?.error ||
+      err.response?.statusText ||
+      err.message ||
+      "Unknown error";
+    alert(`❌ Error during transcription upload: ${message}`);
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   const sessionHistory = [
     { id: 1, name: 'Requirements Discussion', date: '2024-10-20', nodes: 12 },

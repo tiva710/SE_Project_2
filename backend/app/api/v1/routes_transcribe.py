@@ -1,24 +1,23 @@
-#Initialize routes for Flask 
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, UploadFile, File
 import whisper
 import tempfile
 import os
 from datetime import datetime
 
+# Initialize router (NOT app)
+router = APIRouter()
 
-
-# Load Whisper model (tiny = fastest, can change to "base" or "small" for better accuracy)
+# Load Whisper model
 model = whisper.load_model("tiny")
 
-# 🧠 In-memory store for transcriptions
+# In-memory store
 TRANSCRIPTIONS = []
 
-@app.post("/transcribe")
+
+@router.post("/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):
     """
-    Transcribes an uploaded audio file and stores the result
-    in memory with a timestamp.
+    Transcribes an uploaded audio file and stores the result in memory with a timestamp.
     """
     try:
         # Save uploaded file temporarily
@@ -43,14 +42,13 @@ async def transcribe_audio(file: UploadFile = File(...)):
         }
         TRANSCRIPTIONS.append(entry)
 
-        # Return the most recent transcription
         return {"message": "Transcription successful", "text": text, "entry": entry}
 
     except Exception as e:
         return {"error": str(e)}
 
 
-@app.get("/transcriptions")
+@router.get("/transcriptions")
 async def get_all_transcriptions():
     """
     Returns all stored transcriptions for display in the sidebar.
