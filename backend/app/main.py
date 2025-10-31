@@ -36,7 +36,7 @@ app.add_middleware(
 # --------------------------------------------------------
 app.include_router(routes_conversation.router, prefix="/conversation", tags=["conversation"])
 app.include_router(routes_graph.router, prefix="", tags=["graph"])
-app.include_router(routes_stats.router, prefix="/stats", tags=["stats"])
+# app.include_router(routes_stats.router, prefix="/stats", tags=["stats"])
 app.include_router(routes_health.router, prefix="/health", tags=["health"])
 app.include_router(routes_transcribe.router, prefix="/transcribe", tags=["transcribe"])
 
