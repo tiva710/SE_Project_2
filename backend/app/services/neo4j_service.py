@@ -2,9 +2,9 @@ from typing import Dict, Any, List, Tuple
 from neo4j import GraphDatabase, Driver
 
 
-NEO4J_URI = "URI"
+NEO4J_URI = "neo4j+ssc://d31efd7d.databases.neo4j.io"
 NEO4J_USER = "neo4j" 
-NEO4J_PASS = "pwd"
+NEO4J_PASS = "BT4pSio1PcIf4sm0bDNfx1cZZbB8YzdJJHrQgXB7NHc"
 
 _driver: Driver | None = None
 
@@ -19,106 +19,83 @@ def close_driver():
     if _driver:
         _driver.close()
         _driver = None
-
 def _to_graph(rows: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+
     nodes: Dict[str, Dict[str, Any]] = {}
     links: List[Dict[str, Any]] = []
-    for r in rows:
-        n = r.get("n")
-        m = r.get("m")
-        rel = r.get("r")
+
+    for rec in rows:
+        n = rec.get("n")
+        m = rec.get("m")
+        rel = rec.get("r")
+
+        # Add/merge node n by business id
         if n:
             nid = n.get("id")
             if nid and nid not in nodes:
                 nodes[nid] = {
                     "id": nid,
-                    "label": list(n.labels)[0] if n.labels else "",
+                    "label": list(n.labels)[0] if getattr(n, "labels", None) else "",
                     "props": {k: v for k, v in n.items()},
                 }
+
+        # Add/merge node m by business id
         if m:
             mid = m.get("id")
             if mid and mid not in nodes:
                 nodes[mid] = {
                     "id": mid,
-                    "label": list(m.labels)[0] if m.labels else "",
+                    "label": list(m.labels)[0] if getattr(m, "labels", None) else "",
                     "props": {k: v for k, v in m.items()},
                 }
-        if rel:
-            links.append({
-                "type": type(rel).__name__,
-                "source": r["start_id"],
-                "target": r["end_id"],
-                "props": {k: v for k, v in rel.items()},
-            })
+
+        # Add link using business ids only when a relationship exists
+        if rel and n and m:
+            sid = n.get("id")
+            tid = m.get("id")
+            if sid and tid:
+                links.append({
+                    "type": type(rel).__name__,
+                    "source": sid,   # business id
+                    "target": tid,   # business id
+                    "props": {k: v for k, v in rel.items()},
+                })
+
     return list(nodes.values()), links
 
 def fetch_same_label_overview(label: str, limit: int = 200) -> Dict[str, Any]:
+    # Only nodes with the given label, and only edges where both ends have that label
     q = f"""
     MATCH (n:`{label}`)
-    MATCH p=(n)-[r]-(:`{label}`)
-    RETURN p
+    OPTIONAL MATCH (n)-[r]- (m:`{label}`)
+    RETURN n, r, m, elementId(startNode(r)) AS start_id, elementId(endNode(r)) AS end_id
     LIMIT $limit
     """
     with get_driver().session() as s:
         rows = list(s.run(q, limit=limit))
-    # Expand paths to n,r,m and start/end ids so your _to_graph works unchanged
-    expanded = []
-    for rec in rows:
-        p = rec["p"]
-        for r in p.relationships:
-            s_node = r.start_node
-            e_node = r.end_node
-            expanded.append({
-                "n": s_node,
-                "m": e_node,
-                "r": r,
-                "start_id": s_node.element_id,
-                "end_id": e_node.element_id,
-            })
-    nodes, links = _to_graph(expanded)
+        print(rows)
+    nodes, links = _to_graph(rows)
+    # print(links)
     return {"nodes": nodes, "links": links}
 
-
 def fetch_same_label_neighborhood(center_id: str, label: str, k: int = 1, limit: int = 500) -> Dict[str, Any]:
-    # Try APOC first (if available); otherwise fall back
-    q_apoc = """
+    # K-hop neighborhood, but keep only edges where at least one endpoint has the requested label
+    q = """
     MATCH (c {id:$id})
     CALL {
       WITH c
       MATCH p=(c)-[*..$k]-(x)
       RETURN p LIMIT $limit
     }
-    RETURN p
-    """
-    q_fallback = """
-    MATCH (c {id:$id})
-    MATCH p=(c)-[*..$k]-(x)
-    RETURN p
-    LIMIT $limit
+    WITH collect(p) AS paths
+    WITH apoc.coll.toSet(apoc.coll.flatten([p IN paths | nodes(p)])) AS ns,
+         apoc.coll.toSet(apoc.coll.flatten([p IN paths | relationships(p)])) AS rs
+    UNWIND rs AS r
+    WITH ns, r, startNode(r) AS s, endNode(r) AS e
+    WHERE $label IN labels(s) OR $label IN labels(e)
+    RETURN s AS n, r AS r, e AS m, elementId(s) AS start_id, elementId(e) AS end_id
     """
     with get_driver().session() as s:
-        try:
-            rows = list(s.run(q_apoc, id=center_id, k=k, limit=limit))
-            if not rows:
-                rows = list(s.run(q_fallback, id=center_id, k=k, limit=limit))
-        except Exception:
-            rows = list(s.run(q_fallback, id=center_id, k=k, limit=limit))
-
-    # Expand paths, then filter edges so at least one endpoint has the requested label
-    expanded = []
-    for rec in rows:
-        p = rec["p"]
-        for r in p.relationships:
-            s_node = r.start_node
-            e_node = r.end_node
-            if label in list(s_node.labels) or label in list(e_node.labels):
-                expanded.append({
-                    "n": s_node,
-                    "m": e_node,
-                    "r": r,
-                    "start_id": s_node.element_id,
-                    "end_id": e_node.element_id,
-                })
-    nodes, links = _to_graph(expanded)
+        rows = list(s.run(q, id=center_id, k=k, label=label, limit=limit))
+    nodes, links = _to_graph(rows)
     return {"nodes": nodes, "links": links}
-
