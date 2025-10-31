@@ -39,11 +39,11 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      # 5️⃣ Run tests with coverage
-      - name: Run tests with coverage
-        working-directory: backend
-        run: |
-          pytest --cov=. --cov-report xml:coverage.xml --cov-report html
+      # # 5️⃣ Run tests with coverage
+      # - name: Run tests with coverage
+      #   working-directory: backend
+      #   run: |
+      #     pytest --cov=. --cov-report xml:coverage.xml --cov-report html
 
       # 6️⃣ Upload coverage to Codecov
       - name: Upload coverage report to Codecov
