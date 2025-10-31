@@ -1,6 +1,5 @@
 name: Backend CI
 
-# Trigger workflow
 on:
   push:
     branches:
@@ -8,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   backend:
@@ -16,27 +15,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Set up Python
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
-      - name: Install backend dependencies
+      # 3️⃣ Clean up conflicting packages before install
+      - name: Clean up conflicting packages
+        working-directory: backend
         run: |
-          cd backend
+          pip uninstall -y fastapi-cli typer || true
+
+      # 4️⃣ Install dependencies
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
+      # 5️⃣ Run tests with coverage
       - name: Run tests with coverage
+        working-directory: backend
         run: |
-          cd backend
-          pytest --cov=. --cov-report xml --cov-report html
+          pytest --cov=. --cov-report xml:coverage.xml --cov-report html
 
+      # 6️⃣ Upload coverage to Codecov
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/coverage.xml
+          fail_ci_if_error: true
