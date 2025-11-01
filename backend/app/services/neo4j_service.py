@@ -1,6 +1,10 @@
 from typing import Dict, Any, List, Tuple
 from neo4j import GraphDatabase, Driver
 
+NEO4J_URI = "NEO4J_URI"
+NEO4J_USER = "NEO4J_USER" 
+NEO4J_PASS = "NEO4J_PWD"
+
 
 _driver: Driver | None = None
 
