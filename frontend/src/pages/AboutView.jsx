@@ -51,10 +51,8 @@ function AboutView() {
           <h3 className="text-xl font-semibold text-teal-400 mb-4">Tech Stack</h3>
           <ul className="space-y-2 text-gray-300">
             <li>• <strong>Frontend:</strong> React, Tailwind CSS, Vite</li>
-            <li>• <strong>Backend:</strong> Python 3.9+, FastAPI</li>
+            <li>• <strong>Backend:</strong> Python 3.11, FastAPI</li>
             <li>• <strong>Database:</strong> Neo4j (Graph DB)</li>
-            <li>• <strong>AI/ML:</strong> OpenAI API, spaCy NLP</li>
-            <li>• <strong>Visualization:</strong> Pyvis, Plotly</li>
             <li>• <strong>CI/CD:</strong> GitHub Actions</li>
           </ul>
         </div>
@@ -91,21 +89,21 @@ function AboutView() {
             <h4 className="font-semibold text-gray-200 mb-3">Getting Started</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href={`${wikiUrl}/Installation-Guide`} target="_blank" rel="noopener noreferrer"
+                <a href={`${wikiUrl}/installation`} target="_blank" rel="noopener noreferrer"
                    className="text-teal-400 hover:text-teal-300 hover:underline">
                   📦 Installation Guide
                 </a>
               </li>
               <li>
-                <a href={`${wikiUrl}/Quick-Start`} target="_blank" rel="noopener noreferrer"
+                <a href={"https://github.com/tiva710/SE_Project_2/blob/main/README.md"} target="_blank" rel="noopener noreferrer"
                    className="text-teal-400 hover:text-teal-300 hover:underline">
                   🚀 Quick Start Tutorial
                 </a>
               </li>
               <li>
-                <a href={`${wikiUrl}/Usage-Examples`} target="_blank" rel="noopener noreferrer"
+                <a href={`${wikiUrl}/Usage-Guide`} target="_blank" rel="noopener noreferrer"
                    className="text-teal-400 hover:text-teal-300 hover:underline">
-                  💡 Usage Examples
+                  💡 Usage Guide
                 </a>
               </li>
               <li>
