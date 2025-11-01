@@ -15,7 +15,6 @@ function App() {
 
   const handleSendMessage = (msg) => {
     setMessages([...messages, { id: Date.now(), text: msg, sender: 'user' }]);
-    // Mock response
     setTimeout(() => {
       setMessages(prev => [...prev, { 
         id: Date.now(), 

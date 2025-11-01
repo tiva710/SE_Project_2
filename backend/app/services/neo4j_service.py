@@ -1,10 +1,10 @@
 from typing import Dict, Any, List, Tuple
 from neo4j import GraphDatabase, Driver
 
+NEO4J_URI = "NEO4J_URI"
+NEO4J_USER = "NEO4J_USER" 
+NEO4J_PASS = "NEO4J_PWD"
 
-NEO4J_URI = "URI"
-NEO4J_USER = "neo4j" 
-NEO4J_PASS = "pwd"
 
 _driver: Driver | None = None
 
@@ -19,37 +19,48 @@ def close_driver():
     if _driver:
         _driver.close()
         _driver = None
-
 def _to_graph(rows: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+
     nodes: Dict[str, Dict[str, Any]] = {}
     links: List[Dict[str, Any]] = []
-    for r in rows:
-        n = r.get("n")
-        m = r.get("m")
-        rel = r.get("r")
+
+    for rec in rows:
+        n = rec.get("n")
+        m = rec.get("m")
+        rel = rec.get("r")
+
+        # Add/merge node n by business id
         if n:
             nid = n.get("id")
             if nid and nid not in nodes:
                 nodes[nid] = {
                     "id": nid,
-                    "label": list(n.labels)[0] if n.labels else "",
+                    "label": list(n.labels)[0] if getattr(n, "labels", None) else "",
                     "props": {k: v for k, v in n.items()},
                 }
+
+        # Add/merge node m by business id
         if m:
             mid = m.get("id")
             if mid and mid not in nodes:
                 nodes[mid] = {
                     "id": mid,
-                    "label": list(m.labels)[0] if m.labels else "",
+                    "label": list(m.labels)[0] if getattr(m, "labels", None) else "",
                     "props": {k: v for k, v in m.items()},
                 }
-        if rel:
-            links.append({
-                "type": type(rel).__name__,
-                "source": r["start_id"],
-                "target": r["end_id"],
-                "props": {k: v for k, v in rel.items()},
-            })
+
+        # Add link using business ids only when a relationship exists
+        if rel and n and m:
+            sid = n.get("id")
+            tid = m.get("id")
+            if sid and tid:
+                links.append({
+                    "type": type(rel).__name__,
+                    "source": sid,   # business id
+                    "target": tid,   # business id
+                    "props": {k: v for k, v in rel.items()},
+                })
+
     return list(nodes.values()), links
 
 def fetch_same_label_overview(label: str, limit: int = 200) -> Dict[str, Any]:
@@ -62,7 +73,9 @@ def fetch_same_label_overview(label: str, limit: int = 200) -> Dict[str, Any]:
     """
     with get_driver().session() as s:
         rows = list(s.run(q, limit=limit))
+        print(rows)
     nodes, links = _to_graph(rows)
+    # print(links)
     return {"nodes": nodes, "links": links}
 
 def fetch_same_label_neighborhood(center_id: str, label: str, k: int = 1, limit: int = 500) -> Dict[str, Any]:

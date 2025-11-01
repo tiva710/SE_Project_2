@@ -1,17 +1,64 @@
-import React, {useContext} from 'react';
-import { AuthContext } from "../context/AuthContext";
-import { Upload, MessageSquare, Trash2, ChevronLeft, ChevronRight, Clock, User } from 'lucide-react';
-import LoginButton from "./LoginButton";
+import React, { useState } from 'react';
+import {
+  Upload,
+  MessageSquare,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  User,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
+import axios from 'axios';
 
-function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
-  const { user, login, logout } = useContext(AuthContext);
+function Sidebar({ isOpen, onToggle, onClearGraph }) {
+  const [uploading, setUploading] = useState(false);
+  const [transcriptions, setTranscriptions] = useState([]);
+  const [showTranscriptions, setShowTranscriptions] = useState(false);
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      onUpload();
+  // 🎧 Handle audio upload
+  const handleAudioUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setUploading(true);
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:8000/transcribe/transcribe",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    console.log("Backend response:", res.data); // 🧠 Debug line
+
+    // ✅ Safely handle both structures
+    const entry = res.data.entry || res.data?.data?.entry;
+    if (entry) {
+      setTranscriptions((prev) => [entry, ...prev]);
+      alert(`✅ Transcribed: ${file.name}`);
+    } else if (res.data.message) {
+      alert(`✅ ${res.data.message}`);
+    } else {
+      console.warn("Unexpected backend response:", res.data);
+      alert("⚠️ Unexpected backend response (check console)");
     }
-  };
+  } catch (err) {
+    console.error("Upload failed:", err.response || err.message);
+    const message =
+      err.response?.data?.error ||
+      err.response?.statusText ||
+      err.message ||
+      "Unknown error";
+    alert(`❌ Error during transcription upload: ${message}`);
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   // Mock session history: will be replaced w real data from backend
   const sessionHistory = user 
@@ -35,6 +82,7 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
 
   return (
     <aside className="w-80 bg-gray-800 border-r border-gray-700 p-6 flex flex-col gap-6 overflow-y-auto">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-teal-400">ReqTrace</h2>
         <button onClick={onToggle} className="p-1 hover:bg-gray-700 rounded">
@@ -42,7 +90,7 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         </button>
       </div>
 
-      {/* Login/Signup Section */}
+      {/* User Info */}
       <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
         <div className="flex items-center gap-3">
           {user?.picture ? (
@@ -74,27 +122,87 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         )}
       </div>
 
-      {/* Upload Section */}
+      {/* 🎧 Audio Upload Section */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">Document Upload</h3>
+        <h3 className="text-sm font-semibold text-gray-400 uppercase">
+          Audio Upload
+        </h3>
         <label className="block">
-          <div className="flex items-center gap-2 px-4 py-3 bg-teal-600 hover:bg-teal-700 rounded-lg cursor-pointer transition-colors">
+          <div className="flex items-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 rounded-lg cursor-pointer transition-colors">
             <Upload className="w-5 h-5" />
-            <span className="font-medium">Upload File</span>
+            <span className="font-medium">
+              {uploading ? 'Uploading...' : 'Upload Audio'}
+            </span>
           </div>
-          <input type="file" className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
+          <input
+            type="file"
+            className="hidden"
+            onChange={handleAudioUpload}
+            accept="audio/*"
+            disabled={uploading}
+          />
         </label>
-        <p className="text-xs text-gray-500">Supported: PDF, DOCX, TXT</p>
+        <p className="text-xs text-gray-500">Supported: MP3, WAV, M4A</p>
       </div>
 
-      {/* Quick Actions */}
+      {/* ⚡ Quick Actions */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">Quick Actions</h3>
-        <button className="w-full flex items-center gap-2 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
-          <MessageSquare className="w-5 h-5" />
-          <span>Show Transcriptions</span>
+        <h3 className="text-sm font-semibold text-gray-400 uppercase">
+          Quick Actions
+        </h3>
+
+        {/* Show Transcriptions Button */}
+        <button
+          onClick={() => setShowTranscriptions(!showTranscriptions)}
+          className="w-full flex items-center justify-between px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            Show Transcriptions
+          </span>
+          {showTranscriptions ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
         </button>
-        <button 
+
+
+        {/* Transcriptions Dropdown */}
+        {showTranscriptions && (
+          <div
+            className="mt-2 bg-gray-800 border border-gray-700 rounded-lg p-2"
+            style={{ maxHeight: '420px', overflowY: 'auto' }}   // list scroll
+          >
+            {transcriptions.length > 0 ? (
+              transcriptions.map((t) => (
+                <div
+                  key={t.id}
+                  className="mb-3 p-3 bg-gray-700 rounded-lg"
+                >
+                  {/* filename – no truncate; wrap long names */}
+                  <p className="font-semibold text-teal-400 break-words">
+                    {t.filename}
+                  </p>
+
+                  {/* FULL transcript – no line clamp; its own scroll if very long */}
+                  <div className="mt-1 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed text-sm text-gray-100">
+                    {t.text}
+                  </div>
+
+                  <p className="text-[10px] text-gray-400 mt-2">{t.timestamp}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-gray-500 text-center py-2">
+                No transcriptions yet.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Clear Graph */}
+        <button
           onClick={onClearGraph}
           className="w-full flex items-center gap-2 px-4 py-3 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg transition-colors"
         >
@@ -103,7 +211,7 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         </button>
       </div>
 
-      {/* Session History */}
+      {/* 🕒 Session History */}
       <div className="space-y-3 flex-1">
         <h3 className="text-sm font-semibold text-gray-400 uppercase flex items-center gap-2">
           <Clock className="w-4 h-4" />
@@ -111,9 +219,11 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         </h3>
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {sessionHistory.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-4">No previous sessions</p>
+            <p className="text-xs text-gray-500 text-center py-4">
+              No previous sessions
+            </p>
           ) : (
-            sessionHistory.map(session => (
+            sessionHistory.map((session) => (
               <button
                 key={session.id}
                 className="w-full text-left px-3 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
@@ -123,7 +233,9 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
                     <p className="text-sm font-medium truncate">{session.name}</p>
                     <p className="text-xs text-gray-400">{session.date}</p>
                   </div>
-                  <span className="text-xs text-teal-400 ml-2">{session.nodes} nodes</span>
+                  <span className="text-xs text-teal-400 ml-2">
+                    {session.nodes} nodes
+                  </span>
                 </div>
               </button>
             ))
@@ -131,7 +243,7 @@ function Sidebar({ isOpen, onToggle, onUpload, onClearGraph }) {
         </div>
       </div>
 
-      {/* Footer Info */}
+      {/* Footer */}
       <div className="pt-4 border-t border-gray-700">
         <p className="text-xs text-gray-500 text-center">
           💾 Sessions saved automatically
