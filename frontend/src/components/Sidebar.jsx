@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import LoginButton from './LoginButton';
 import {
   Upload,
   MessageSquare,
@@ -13,6 +15,7 @@ import {
 import axios from 'axios';
 
 function Sidebar({ isOpen, onToggle, onClearGraph }) {
+  const { user, logout } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [transcriptions, setTranscriptions] = useState([]);
   const [showTranscriptions, setShowTranscriptions] = useState(false);
