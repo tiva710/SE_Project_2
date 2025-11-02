@@ -24,16 +24,16 @@ function ChatInterface({ messages, onSendMessage }) {
             </div>
           </div>
         ) : (
-          messages.map(msg => (
+          messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                msg.sender === 'user' 
-                  ? 'bg-teal-600 text-white' 
-                  : 'bg-gray-700 text-gray-100'
-              }`}>
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  msg.sender === 'user' ? 'bg-teal-600 text-white' : 'bg-gray-700 text-gray-100'
+                }`}
+              >
                 {msg.text}
               </div>
             </div>

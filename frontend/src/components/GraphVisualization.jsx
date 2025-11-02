@@ -24,15 +24,15 @@ function GraphVisualization({ data }) {
   const views = ['All Nodes', 'Dependency Chain', 'Stakeholder Impact', 'Feature Clusters'];
 
   const toggleFilter = (filterName) => {
-    setActiveFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }));
+    setActiveFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
   };
 
   // Color palette consistent with your badges
   const colorForType = (t) => {
-    if (t === 'Feature') return '#2563eb';      // blue-600
-    if (t === 'Stakeholder') return '#16a34a';  // green-600
-    if (t === 'Constraint') return '#dc2626';   // red-600
-    return '#7c3aed';                           // purple-600 (Requirement/other)
+    if (t === 'Feature') return '#2563eb'; // blue-600
+    if (t === 'Stakeholder') return '#16a34a'; // green-600
+    if (t === 'Constraint') return '#dc2626'; // red-600
+    return '#7c3aed'; // purple-600 (Requirement/other)
   };
 
   // Normalize backend payload -> { nodes: [{id,name,type,...}], links: [{source,target,...}] }
@@ -40,18 +40,12 @@ function GraphVisualization({ data }) {
     const rawNodes = Array.isArray(res?.nodes) ? res.nodes : Array.isArray(res) ? res : [];
     const rawLinks = Array.isArray(res?.links) ? res.links : [];
 
-    const nodes = rawNodes.map(n => {
+    const nodes = rawNodes.map((n) => {
       // Backend sample:
       // { id, label: "Stakeholder", props: { name, role, id } }
       const id = n.id ?? n.props?.id;
       const type = n.type ?? n.label ?? 'Node';
-      const name =
-        n.name ??
-        n.props?.name ??
-        n.props?.role ??
-        n.props?.id ??
-        n.id ??
-        String(id);
+      const name = n.name ?? n.props?.name ?? n.props?.role ?? n.props?.id ?? n.id ?? String(id);
 
       return {
         ...n,
@@ -61,16 +55,19 @@ function GraphVisualization({ data }) {
       };
     });
 
-    const index = new Set(nodes.map(n => n.id));
+    const index = new Set(nodes.map((n) => n.id));
     const links = rawLinks
-      .map(l => {
+      .map((l) => {
         // Allow various shapes: {source,target} or {from,to} etc.
         const source = l.source ?? l.from ?? l.start ?? l.src ?? l.u ?? l.s;
         const target = l.target ?? l.to ?? l.end ?? l.dst ?? l.v ?? l.t;
         return { ...l, source, target };
       })
-      .filter(l => index.has(typeof l.source === 'object' ? l.source?.id : l.source)
-                && index.has(typeof l.target === 'object' ? l.target?.id : l.target));
+      .filter(
+        (l) =>
+          index.has(typeof l.source === 'object' ? l.source?.id : l.source) &&
+          index.has(typeof l.target === 'object' ? l.target?.id : l.target)
+      );
 
     return { nodes, links };
   };
@@ -88,7 +85,7 @@ function GraphVisualization({ data }) {
         const B = normalizeGraph(stake);
         // de-duplicate nodes by id
         const seen = new Set();
-        const nodes = [...A.nodes, ...B.nodes].filter(n => {
+        const nodes = [...A.nodes, ...B.nodes].filter((n) => {
           if (seen.has(n.id)) return false;
           seen.add(n.id);
           return true;
@@ -113,8 +110,8 @@ function GraphVisualization({ data }) {
       if (view === 'Dependency Chain') {
         // Try a small neighborhood around first node (can wire to a selection later)
         const seed =
-          graph.nodes.find(n => n.type === 'Feature')?.id ??
-          graph.nodes.find(n => n.type === 'Stakeholder')?.id ??
+          graph.nodes.find((n) => n.type === 'Feature')?.id ??
+          graph.nodes.find((n) => n.type === 'Stakeholder')?.id ??
           null;
 
         if (seed) {
@@ -122,10 +119,8 @@ function GraphVisualization({ data }) {
             getFeatureNeighborhood(seed, 1, 500),
             getStakeholderNeighborhood(seed, 1, 500),
           ]);
-          const candidate =
-            (a.status === 'fulfilled' && a.value) ||
-            (b.status === 'fulfilled' && b.value) ||
-            { nodes: [], links: [] };
+          const candidate = (a.status === 'fulfilled' && a.value) ||
+            (b.status === 'fulfilled' && b.value) || { nodes: [], links: [] };
           setGraph(normalizeGraph(candidate));
         } else {
           const res = await getFeaturesOverview(200);
@@ -166,9 +161,9 @@ function GraphVisualization({ data }) {
         .filter(([, on]) => on)
         .map(([k]) => k.replace(/s$/, '')) // Features -> Feature
     );
-    const nodes = (graph.nodes ?? []).filter(n => enabledTypes.has(n.type));
-    const keep = new Set(nodes.map(n => n.id));
-    const links = (graph.links ?? []).filter(l => {
+    const nodes = (graph.nodes ?? []).filter((n) => enabledTypes.has(n.type));
+    const keep = new Set(nodes.map((n) => n.id));
+    const links = (graph.links ?? []).filter((l) => {
       const s = typeof l.source === 'object' ? l.source?.id : l.source;
       const t = typeof l.target === 'object' ? l.target?.id : l.target;
       return keep.has(s) && keep.has(t);
@@ -231,7 +226,7 @@ function GraphVisualization({ data }) {
           <Eye className="w-4 h-4 text-gray-400" />
           <span className="text-xs font-semibold text-gray-400 uppercase">View:</span>
           <div className="flex flex-wrap gap-2">
-            {views.map(view => (
+            {views.map((view) => (
               <button
                 key={view}
                 onClick={() => setActiveView(view)}
@@ -251,7 +246,7 @@ function GraphVisualization({ data }) {
           <Filter className="w-4 h-4 text-gray-400" />
           <span className="text-xs font-semibold text-gray-400 uppercase">Filters:</span>
           <div className="flex flex-wrap gap-2">
-            {Object.keys(activeFilters).map(filter => (
+            {Object.keys(activeFilters).map((filter) => (
               <label
                 key={filter}
                 className="flex items-center gap-1.5 px-2 py-1 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors"
@@ -295,7 +290,8 @@ function GraphVisualization({ data }) {
           )}
         </div>
         <p className="text-xs text-gray-500 mt-6 text-center">
-          Note: This normalizes backend nodes (id, label, props) to the component format (id, name, type).
+          Note: This normalizes backend nodes (id, label, props) to the component format (id, name,
+          type).
         </p>
       </div>
     </div>
