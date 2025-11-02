@@ -54,14 +54,18 @@ Complete documentation is available in the [Wiki](https://github.com/tiva710/SE_
 ---
 
 ## Badges
-CI/CD: 
-
-Test Coverage: 
+![Backend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml/badge.svg)
 
 Build Status: 
 
 Doi: 
 
+## Code Quality
+All 3 are in one workflow ```lint.yml```
+
+ESLint: ![ESLint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+Stylelint: ![Stylelint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+Prettier: ![Prettier](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
 ---
 
 ## Support & Contact
