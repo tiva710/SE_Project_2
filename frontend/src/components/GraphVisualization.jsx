@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Network, Filter, Eye } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
 import {
+  getOverview,
   getStakeholdersOverview,
   getFeaturesOverview,
   getStakeholderNeighborhood,
@@ -81,8 +82,7 @@ function GraphVisualization({ data }) {
     try {
       if (view === 'All Nodes') {
         const [feat, stake] = await Promise.all([
-          getFeaturesOverview(500),
-          getStakeholdersOverview(500),
+          getOverview(500)
         ]);
         const A = normalizeGraph(feat);
         const B = normalizeGraph(stake);
