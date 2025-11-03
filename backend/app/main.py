@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 from app.api.v1 import (
     routes_conversation,
     routes_graph,
@@ -7,6 +9,11 @@ from app.api.v1 import (
     routes_health,
     routes_transcribe,
 )
+# ✅ Explicitly point to backend/.env no matter where uvicorn is started
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path=dotenv_path)
+# safety net: remove any system key override
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 # --------------------------------------------------------
 # Initialize FastAPI
@@ -34,7 +41,7 @@ app.add_middleware(
 # --------------------------------------------------------
 # Routers
 # --------------------------------------------------------
-#app.include_router(routes_conversation.router, prefix="/conversation", tags=["conversation"])
+app.include_router(routes_conversation.router, prefix="/conversation", tags=["conversation"])
 app.include_router(routes_graph.router, prefix="", tags=["graph"])
 # app.include_router(routes_stats.router, prefix="/stats", tags=["stats"])
 app.include_router(routes_health.router, prefix="/health", tags=["health"])
