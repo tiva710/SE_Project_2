@@ -2,12 +2,12 @@
 ---
 
 ## Overview 
-**ReqTrace** is 
+**ReqTrace** is a tool that automatically constructs interactive knowledge graphs from requirements discussions. Discussions can come from uploaded transcripts or conversations with an embedded LLM. As conversations and discussions unfold, the system will identify entities (e.g. features, stakeholders, contraints), extract relationships, and build a navigable graph showing how requirements connect. Stakeholders can explore and refine the graph through continued conversations and preferences. 
 
 ---
 
 ## Intended Users 
-ReqTrace is intended for 
+ReqTrace is intended for software engineers, project managers, and stakeholders involved in the requirements engineering process. It supports anyone responsible for eliciting, analyzing, or maintaining system requirements, particularly in collaborative or evolving project environments. Researchers may also use ReqTrace for exploring automated requirements extraction or graph-based documentation tools. 
 
 For detailed use cases, see [USE_CASES.md](docs/USE_CASES.md)
 
@@ -60,12 +60,12 @@ Build Status:
 
 Doi: 
 
-## Code Quality
+### Code Quality
 All 3 are in one workflow ```lint.yml```
 
-ESLint: ![ESLint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
-Stylelint: ![Stylelint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
-Prettier: ![Prettier](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+- ESLint: ![ESLint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+- Stylelint: ![Stylelint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+- Prettier: ![Prettier](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
 ---
 
 ## Support & Contact
@@ -80,3 +80,7 @@ Prettier: ![Prettier](https://github.com/tiva710/SE_Project_2/actions/workflows/
 
 ---
 ## Contributors 
+- [Tiva Rocco](https://github.com/tiva710)
+- [Anusha Upadhyay](https://github.com/AnushaU1111)
+- [Rujuta Palimkar](https://github.com/ruju4a)
+- [Aayushi Masurekar](https://github.com/aayushimasurekar)
