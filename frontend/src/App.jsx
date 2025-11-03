@@ -16,19 +16,22 @@ function App() {
   const handleSendMessage = (msg) => {
     setMessages([...messages, { id: Date.now(), text: msg, sender: 'user' }]);
     setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        text: 'Processing your request...', 
-        sender: 'assistant' 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: 'Processing your request...',
+          sender: 'assistant',
+        },
+      ]);
       setGraphData(mockGraphData);
     }, 500);
   };
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100">
-      <Sidebar 
-        isOpen={sidebarOpen} 
+      <Sidebar
+        isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onUpload={() => setGraphData(mockGraphData)}
         onClearGraph={() => setGraphData(null)}
@@ -39,11 +42,7 @@ function App() {
 
         <main className="flex-1 overflow-auto p-6">
           {activeView === 'home' && (
-            <HomeView 
-              graphData={graphData}
-              messages={messages}
-              onSendMessage={handleSendMessage}
-            />
+            <HomeView graphData={graphData} messages={messages} onSendMessage={handleSendMessage} />
           )}
           {activeView === 'about' && <AboutView />}
           {activeView === 'settings' && <SettingsView />}
