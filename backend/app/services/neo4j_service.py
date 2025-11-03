@@ -3,7 +3,7 @@ from neo4j import GraphDatabase, Driver
 
 NEO4J_URI = "NEO4J_URI"
 NEO4J_USER = "NEO4J_USER" 
-NEO4J_PASS = "NEO4J_PWD"
+NEO4J_PASS = "NEO4J_PASS"
 
 
 _driver: Driver | None = None
