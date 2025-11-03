@@ -1,31 +1,29 @@
 import spacy
 from spacy.matcher import Matcher, DependencyMatcher
-import coreferee  # modern spaCy coref resolver
 import json
 
-# Load a supported spaCy model directly
-nlp = spacy.load("en_core_web_trf")  # or "en_core_web_sm"
+# Try loading the large transformer model first
+try:
+    nlp = spacy.load("en_core_web_trf")
+    print("✅ Loaded transformer model: en_core_web_trf")
+except OSError:
+    print("⚠️ Transformer model not found. Falling back to en_core_web_sm.")
+    nlp = spacy.load("en_core_web_sm")
 
-# Add Coreferee after loading the model
-nlp.add_pipe('coreferee')
+# Try to add Coreferee only once
+try:
+    import coreferee
+    if "coreferee" not in nlp.pipe_names:
+        nlp.add_pipe("coreferee")
+        print("✅ Coreferee added successfully.")
+    else:
+        print("ℹ️ Coreferee already exists in pipeline.")
+except Exception as e:
+    print(f"⚠️ Coreferee not available or failed to load: {e}")
 
-# Add coreference resolver
-nlp.add_pipe('coreferee')
-
+# Initialize matchers
 matcher = Matcher(nlp.vocab)
 dep_matcher = DependencyMatcher(nlp.vocab)
-# sample_transcript = """
-# Alice, the Product Manager, said that the Login Feature shall allow users to authenticate with their email and password.
-# Bob, the Lead Developer, mentioned that this feature depends on the Authentication Module.
-# The Authentication Module must satisfy the security requirements and is constrained by the performance limit of 2 seconds per login.
-# Charlie, the QA Lead, will validate the Login Feature using Test Case TC-01 and TC-02.
-# The Dashboard Feature relies on the Login Feature and should display user-specific information.
-# The Reporting Feature is derived from the Dashboard Feature and refines the existing analytics requirements.
-# The Login Feature is supported by Alice and the Operations Team.
-# All requirements must be validated by the corresponding test cases.
-# It should also be owned by Bob.
-# """
-
 
 # -------------------- Helper to add dependency patterns --------------------
 def add_dep_pattern(dep_matcher, rel_name, ent1_label, verb_lemmas, ent2_label):
@@ -48,10 +46,14 @@ add_dep_pattern(dep_matcher, "VALIDATED_BY", "REQUIREMENT", ["validate", "verify
 # -------------------- Main NER + RE with Coref --------------------
 def process_conversation(text: str):
     doc = nlp(text)
-    
-    # Resolve coreferences
-    resolved_text = doc._.coref_resolved
-    doc = nlp(resolved_text)  # re-parse resolved text
+
+    # Resolve coreferences if available
+    if nlp.has_pipe("coreferee") and hasattr(doc._, "coref_resolved"):
+        try:
+            resolved_text = doc._.coref_resolved
+            doc = nlp(resolved_text)
+        except Exception as e:
+            print(f"⚠️ Coreference resolution failed: {e}")
 
     ner_map = {
         "features": {},
@@ -65,33 +67,18 @@ def process_conversation(text: str):
     # ---- Dynamically detect entities ----
     for chunk in doc.noun_chunks:
         span_text = chunk.text.strip()
-        # Features
         if any(tok.lower_ in ["feature", "module", "dashboard", "login", "function"] for tok in chunk):
-            if span_text not in ner_map["features"]:
-                ner_map["features"][span_text] = {
-                    "owned_by": [], "depends_on": [], "constraints": [], 
-                    "satisfied_by": [], "supported_by": [], "validated_by": []
-                }
-        # Stakeholders (proper nouns)
+            ner_map["features"].setdefault(span_text, {"owned_by": [], "depends_on": [], "constraints": [], "satisfied_by": [], "supported_by": [], "validated_by": []})
         if any(tok.pos_ == "PROPN" for tok in chunk):
-            if span_text not in ner_map["stakeholders"]:
-                ner_map["stakeholders"][span_text] = {"owns": [], "supports": []}
-        # Requirements
+            ner_map["stakeholders"].setdefault(span_text, {"owns": [], "supports": []})
         if any(tok.lower_ in ["shall", "should", "must", "requirement"] for tok in chunk):
-            if span_text not in ner_map["requirements"]:
-                ner_map["requirements"][span_text] = {"satisfied_by": [], "refines": [], "validated_by": []}
-        # Constraints
+            ner_map["requirements"].setdefault(span_text, {"satisfied_by": [], "refines": [], "validated_by": []})
         if any(tok.lower_ in ["constraint", "limit", "budget", "performance"] for tok in chunk):
-            if span_text not in ner_map["constraints"]:
-                ner_map["constraints"][span_text] = {"applies_to": []}
-        # TestCases
+            ner_map["constraints"].setdefault(span_text, {"applies_to": []})
         if any(tok.lower_ in ["test", "verify", "validate", "check"] for tok in chunk):
-            if span_text not in ner_map["test_cases"]:
-                ner_map["test_cases"][span_text] = {"validates": []}
-        # Design
+            ner_map["test_cases"].setdefault(span_text, {"validates": []})
         if any(tok.lower_ in ["design", "architecture", "layout", "schema", "frontend", "backend", "api"] for tok in chunk):
-            if span_text not in ner_map["design"]:
-                ner_map["design"][span_text] = {"related_to": []}
+            ner_map["design"].setdefault(span_text, {"related_to": []})
 
     # ---- Extract relationships using DependencyMatcher ----
     dep_matches = dep_matcher(doc)
@@ -100,27 +87,21 @@ def process_conversation(text: str):
         ent1 = doc[token_ids[0]].text
         ent2 = doc[token_ids[2]].text
 
-        if rel_type == "DEPENDS_ON" and ent1 in ner_map["features"] and ent2 in ner_map["features"]:
-            ner_map["features"][ent1]["depends_on"].append(ent2)
-        elif rel_type == "DERIVED_ON" and ent1 in ner_map["requirements"] and ent2 in ner_map["requirements"]:
-            ner_map["requirements"][ent1]["refines"].append(ent2)
-        elif rel_type == "OWNED_BY" and ent1 in ner_map["features"] and ent2 in ner_map["stakeholders"]:
-            ner_map["features"][ent1]["owned_by"].append(ent2)
-            ner_map["stakeholders"][ent2]["owns"].append(ent1)
-        elif rel_type == "REFINES" and ent1 in ner_map["requirements"] and ent2 in ner_map["requirements"]:
-            ner_map["requirements"][ent1]["refines"].append(ent2)
-        elif rel_type == "SATISFIED_BY" and ent1 in ner_map["requirements"] and ent2 in ner_map["features"]:
-            ner_map["requirements"][ent1]["satisfied_by"].append(ent2)
-            ner_map["features"][ent2]["satisfied_by"].append(ent1)
-        elif rel_type == "SUPPORTED_BY" and ent1 in ner_map["features"] and ent2 in ner_map["stakeholders"]:
-            ner_map["features"][ent1]["supported_by"].append(ent2)
-            ner_map["stakeholders"][ent2]["supports"].append(ent1)
-        elif rel_type == "VALIDATED_BY" and ent1 in ner_map["requirements"] and ent2 in ner_map["test_cases"]:
-            ner_map["requirements"][ent1]["validated_by"].append(ent2)
-            ner_map["test_cases"][ent2]["validates"].append(ent1)
+        if rel_type == "DEPENDS_ON":
+            ner_map["features"].get(ent1, {}).get("depends_on", []).append(ent2)
+        elif rel_type == "DERIVED_ON":
+            ner_map["requirements"].get(ent1, {}).get("refines", []).append(ent2)
+        elif rel_type == "OWNED_BY":
+            if ent1 in ner_map["features"] and ent2 in ner_map["stakeholders"]:
+                ner_map["features"][ent1]["owned_by"].append(ent2)
+                ner_map["stakeholders"][ent2]["owns"].append(ent1)
+        elif rel_type == "REFINES":
+            ner_map["requirements"].get(ent1, {}).get("refines", []).append(ent2)
+        elif rel_type == "SATISFIED_BY":
+            ner_map["requirements"].get(ent1, {}).get("satisfied_by", []).append(ent2)
+        elif rel_type == "SUPPORTED_BY":
+            ner_map["features"].get(ent1, {}).get("supported_by", []).append(ent2)
+        elif rel_type == "VALIDATED_BY":
+            ner_map["requirements"].get(ent1, {}).get("validated_by", []).append(ent2)
 
     return ner_map
-
-
-# result = process_conversation(sample_transcript)
-# print(result)

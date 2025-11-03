@@ -1,9 +1,9 @@
 from typing import Dict, Any, List, Tuple
 from neo4j import GraphDatabase, Driver
 
-NEO4J_URI = "NEO4J_URI"
-NEO4J_USER = "NEO4J_USER" 
-NEO4J_PASS = "NEO4J_PWD"
+NEO4J_URI = "neo4j+ssc://d31efd7d.databases.neo4j.io"
+NEO4J_USER = "neo4j" 
+NEO4J_PASS = "BT4pSio1PcIf4sm0bDNfx1cZZbB8YzdJJHrQgXB7NHc"
 
 
 _driver: Driver | None = None
