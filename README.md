@@ -32,6 +32,11 @@ source .venv/bin/activate    # activate on macOS/Linux
 # OR for Windows PowerShell:
 # .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+pip install --upgrade pip
+brew install ffmpeg
+python -m spacy download en_core_web_sm
+python -m coreferee install en
+/Applications/Python\ 3.11/Install\ Certificates.command   #for mac installation
 uvicorn main:app --reload
 ```
 
