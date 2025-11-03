@@ -96,8 +96,10 @@ This document provides step-by-step instructions to install, configure, run, and
   cd frontend
   npm install
 ```
+2. Update OAuth credentials 
+- Rename ```.env.template``` to ```.env``` and replace ```YOUR_GOOGLE_CLIENT_ID``` with your respective client ID 
 
-2. Start development server
+3. Start development server
 ```bash
   npm run dev 
 ```
