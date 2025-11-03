@@ -32,6 +32,8 @@ source .venv/bin/activate    # activate on macOS/Linux
 # OR for Windows PowerShell:
 # .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+pip install spacy-transformers 
+pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.4.1/en_core_web_lg-3.4.1-py3-none-any.whl
 uvicorn main:app --reload
 ```
 
