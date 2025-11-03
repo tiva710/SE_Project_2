@@ -6,13 +6,6 @@
 # app/services/neo4j_service.py
 from typing import Dict, Any, List, Tuple, Iterable
 from neo4j import GraphDatabase, Driver
-from pathlib import Path
-from dotenv import load_dotenv
-import os
-
-
-
-load_dotenv(".env")
 
 # Read credentials from environment
 NEO4J_URI = os.getenv("NEO4J_URI", "").strip()
