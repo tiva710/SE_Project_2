@@ -25,11 +25,6 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!['audio/mp3', 'audio/wav', 'audio/m4a'].includes(file.type)) {
-      window.alert('Unsupported file type!'); // <-- add this
-      return;
-    }
-
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);

@@ -59,20 +59,18 @@ Complete documentation is available in the [Wiki](https://github.com/tiva710/SE_
 ---
 
 ## Badges
-License: 
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Backend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml/badge.svg)
+
+Build Status: 
 
 Doi: 
 
-### Tests & Code Quality
-[![Backend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml)
-[![Frontend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/frontend-tests.yml)
-
+### Code Quality
 All 3 are in one workflow ```lint.yml```
 
-- ESLint: [![ESLint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml)
-- Stylelint: [![Stylelint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml)
-- Prettier: [![Prettier](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml)
+- ESLint: ![ESLint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+- Stylelint: ![Stylelint](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
+- Prettier: ![Prettier](https://github.com/tiva710/SE_Project_2/actions/workflows/lint.yml/badge.svg)
 ---
 
 ## Support & Contact

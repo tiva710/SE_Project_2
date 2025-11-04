@@ -8,7 +8,8 @@ requests==2.32.3
 # --- NLP / AI / Embeddings ---
 openai==1.48.0
 sentence-transformers==2.7.0
-spacy==3.5.4
+# spacy==3.5.4
+# coreferee==1.4.0
 nltk==3.8.1
 transformers==4.44.2
 torch==2.4.0

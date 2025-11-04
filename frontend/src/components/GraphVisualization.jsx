@@ -5,8 +5,8 @@ import {
   getOverview,
   getStakeholdersOverview,
   getFeaturesOverview,
-  // getStakeholderNeighborhood,
-  // getFeatureNeighborhood,
+  getStakeholderNeighborhood,
+  getFeatureNeighborhood,
 } from '../api/index.jsx'; // adjust path if needed
 
 function GraphVisualization({ data }) {
