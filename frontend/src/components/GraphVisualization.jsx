@@ -1,12 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Network, Filter, Eye } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
-import {
-  getStakeholdersOverview,
-  getFeaturesOverview,
-  getStakeholderNeighborhood,
-  getFeatureNeighborhood,
-} from '../api/index.jsx'; // adjust path if needed
+// eslint-disable-next-line no-unused-vars
+import {getStakeholdersOverview,getFeaturesOverview,getStakeholderNeighborhood,getFeatureNeighborhood,} from '../api/index.jsx'; 
 
 function GraphVisualization({ data }) {
   const [activeFilters, setActiveFilters] = useState({
