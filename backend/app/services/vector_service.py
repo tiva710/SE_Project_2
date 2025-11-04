@@ -1,6 +1,10 @@
 # app/services/vector_service.py
 import os
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+
 import faiss
+# ... rest of your code
 import pickle
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -19,12 +23,16 @@ MODEL_NAME = "all-MiniLM-L6-v2"
 model = SentenceTransformer(MODEL_NAME)
 index = None
 metadata = []
+_initialized = False
 
 # ======================================================
 # 🧩 Initialize index from disk (if exists)
 # ======================================================
 def initialize_index():
-    global index, metadata
+    global index, metadata, _initialized
+    if _initialized:
+        return
+    
     os.makedirs(DATA_DIR, exist_ok=True)
     if os.path.exists(INDEX_PATH) and os.path.exists(META_PATH):
         try:
@@ -37,6 +45,8 @@ def initialize_index():
             index, metadata = None, []
     else:
         print("⚠️ No FAISS index found. Vector search will be disabled until built.")
+    
+    _initialized = True
 
 # ======================================================
 # 🧩 Build FAISS index from scratch (one-time)
@@ -45,7 +55,7 @@ def build_index(transcripts):
     """
     transcripts = [{"text": "..."}, ...]
     """
-    global index, metadata
+    global index, metadata, _initialized
     os.makedirs(DATA_DIR, exist_ok=True)
 
     texts = [t["text"] for t in transcripts if t.get("text")]
@@ -63,17 +73,22 @@ def build_index(transcripts):
     with open(META_PATH, "wb") as f:
         pickle.dump(metadata, f)
     print(f"✅ FAISS index built and saved ({len(metadata)} entries).")
+    _initialized = True
 
 # ======================================================
-# 🧩 Incremental update (persistent)
+# 🧩 Incremental update (persistent) - THIS WAS MISSING!
 # ======================================================
 def add_transcription_to_faiss(entry):
     """
     Incrementally add a new transcription to FAISS index and persist.
     entry = {"text": "...", "filename": "..."}
     """
-    global index, metadata
+    global index, metadata, _initialized
     os.makedirs(DATA_DIR, exist_ok=True)
+
+    # Ensure initialization happened first
+    if not _initialized:
+        initialize_index()
 
     text = entry.get("text")
     if not text:
@@ -103,7 +118,12 @@ def add_transcription_to_faiss(entry):
 # 🧩 Semantic search
 # ======================================================
 def search_similar_transcripts(query, top_k=3):
-    global index, metadata
+    global index, metadata, _initialized
+    
+    # Ensure initialization happened first
+    if not _initialized:
+        initialize_index()
+    
     if index is None or len(metadata) == 0:
         print("⚠️ FAISS index not available. Returning empty results.")
         return []
@@ -116,6 +136,3 @@ def search_similar_transcripts(query, top_k=3):
         if idx < len(metadata):
             results.append(metadata[idx])
     return results
-
-# Initialize on import
-initialize_index()

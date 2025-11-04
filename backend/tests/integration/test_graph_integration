@@ -1,0 +1,133 @@
+import pytest
+from fastapi.testclient import TestClient
+from neo4j import GraphDatabase
+import os
+from app.main import app
+
+
+@pytest.fixture(scope="module")
+def test_neo4j_connection():
+    """
+    Fixture for real Neo4j test database connection.
+    Use a separate test database or Neo4j test container.
+    """
+    # Option 1: Use environment variables for test database
+    test_uri = os.getenv("NEO4J_TEST_URI", "neo4j+ssc://test.databases.neo4j.io")
+    test_user = os.getenv("NEO4J_TEST_USER", "neo4j")
+    test_pass = os.getenv("NEO4J_TEST_PASS", "test_password")
+    
+    driver = GraphDatabase.driver(test_uri, auth=(test_user, test_pass))
+    
+    # Setup: Clear test database before tests
+    with driver.session() as session:
+        session.run("MATCH (n) DETACH DELETE n")
+    
+    yield driver
+    
+    # Teardown: Clean up after tests
+    with driver.session() as session:
+        session.run("MATCH (n) DETACH DELETE n")
+    driver.close()
+
+
+@pytest.fixture(scope="module")
+def integration_client():
+    """Test client for integration tests"""
+    return TestClient(app)
+
+
+@pytest.fixture
+def seed_test_data(test_neo4j_connection):
+    """Seed the test database with sample data"""
+    with test_neo4j_connection.session() as session:
+        # Create stakeholders
+        session.run("""
+            CREATE (s1:Stakeholder {id: 'stakeholder.pm', name: 'Project Manager'})
+            CREATE (s2:Stakeholder {id: 'stakeholder.dev', name: 'Developer'})
+            CREATE (f1:Feature {id: 'feature.login', name: 'Login System'})
+            CREATE (f2:Feature {id: 'feature.dashboard', name: 'Dashboard'})
+            CREATE (s1)-[:OWNS]->(f1)
+            CREATE (s2)-[:IMPLEMENTS]->(f1)
+            CREATE (f1)-[:DEPENDS_ON]->(f2)
+        """)
+    
+    yield
+    
+    # Clean up after test
+    with test_neo4j_connection.session() as session:
+        session.run("MATCH (n) DETACH DELETE n")
+
+
+class TestGraphIntegration:
+    """Integration tests for graph API endpoints with real Neo4j"""
+    
+    def test_fetch_all_graph_with_real_data(self, integration_client, seed_test_data):
+        """Test fetching all graph data from real database"""
+        response = integration_client.get("/api/graph/all")
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        assert "nodes" in data
+        assert "links" in data
+        assert len(data["nodes"]) > 0
+        assert len(data["links"]) > 0
+    
+    def test_stakeholders_overview_integration(self, integration_client, seed_test_data):
+        """Test stakeholders overview with real database"""
+        response = integration_client.get("/api/graph/stakeholders/overview?limit=100")
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Verify we get stakeholder nodes
+        stakeholders = [n for n in data["nodes"] if "Stakeholder" in n["label"]]
+        assert len(stakeholders) == 2
+        assert any(n["props"]["name"] == "Project Manager" for n in stakeholders)
+    
+    def test_neighborhood_search_integration(self, integration_client, seed_test_data):
+        """Test neighborhood search with real graph relationships"""
+        response = integration_client.get(
+            "/api/graph/stakeholders/neighborhood?id=stakeholder.pm&k=2"
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Should find PM, connected features, and related stakeholders
+        assert len(data["nodes"]) > 1
+        assert any("Feature" in n["label"] for n in data["nodes"])
+    
+    def test_end_to_end_graph_workflow(self, integration_client, seed_test_data):
+        """Test complete workflow: fetch overview, then drill into neighborhood"""
+        # Step 1: Get stakeholders overview
+        overview_response = integration_client.get("/api/graph/stakeholders/overview")
+        assert overview_response.status_code == 200
+        stakeholders = overview_response.json()["nodes"]
+        
+        # Step 2: Pick first stakeholder and get their neighborhood
+        first_stakeholder_id = stakeholders[0]["id"]
+        neighbor_response = integration_client.get(
+            f"/api/graph/stakeholders/neighborhood?id={first_stakeholder_id}&k=1"
+        )
+        assert neighbor_response.status_code == 200
+        
+        # Step 3: Verify relationships exist
+        neighborhood = neighbor_response.json()
+        assert len(neighborhood["links"]) > 0
+
+
+@pytest.mark.integration
+class TestGraphPerformance:
+    """Performance tests for graph queries"""
+    
+    def test_large_graph_query_performance(self, integration_client, seed_test_data):
+        """Test that large queries complete within acceptable time"""
+        import time
+        
+        start = time.time()
+        response = integration_client.get("/api/graph/all?limit=5000")
+        duration = time.time() - start
+        
+        assert response.status_code == 200
+        assert duration < 5.0  # Should complete within 5 seconds
