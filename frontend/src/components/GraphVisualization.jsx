@@ -22,7 +22,7 @@ function GraphVisualization({ data }) {
   const [err, setErr] = useState(null);
   const fgRef = useRef();
 
-  const views = ['All Nodes', 'Dependency Chain', 'Stakeholder Impact', 'Feature Clusters'];
+  const views = ['All Nodes', 'Stakeholder Impact', 'Feature Clusters'];
 
   const toggleFilter = (filterName) => {
     setActiveFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }));
@@ -107,30 +107,6 @@ function GraphVisualization({ data }) {
       if (view === 'Feature Clusters') {
         const res = await getFeaturesOverview(500);
         setGraph(normalizeGraph(res));
-        return;
-      }
-
-      if (view === 'Dependency Chain') {
-        // Try a small neighborhood around first node (can wire to a selection later)
-        const seed =
-          graph.nodes.find(n => n.type === 'Feature')?.id ??
-          graph.nodes.find(n => n.type === 'Stakeholder')?.id ??
-          null;
-
-        if (seed) {
-          const [a, b] = await Promise.allSettled([
-            getFeatureNeighborhood(seed, 1, 500),
-            getStakeholderNeighborhood(seed, 1, 500),
-          ]);
-          const candidate =
-            (a.status === 'fulfilled' && a.value) ||
-            (b.status === 'fulfilled' && b.value) ||
-            { nodes: [], links: [] };
-          setGraph(normalizeGraph(candidate));
-        } else {
-          const res = await getFeaturesOverview(200);
-          setGraph(normalizeGraph(res));
-        }
         return;
       }
 
