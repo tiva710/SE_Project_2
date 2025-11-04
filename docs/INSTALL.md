@@ -50,6 +50,8 @@ This document provides step-by-step instructions to install, configure, run, and
   cd backend
   curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
   bash Miniforge3-MacOSX-arm64.sh
+  pip install spacy-transformers 
+  pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.4.1/en_core_web_lg-3.4.1-py3-none-any.whl
   conda create -n se_project python=3.11 faiss-cpu -c conda-forge
   conda activate se_project
   pip install openai-whisper  
