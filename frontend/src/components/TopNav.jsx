@@ -6,20 +6,20 @@ function TopNav({ activeView, setActiveView }) {
     { id: 'home', label: 'Home', icon: Home },
     { id: 'about', label: 'About', icon: Network },
     { id: 'settings', label: 'Settings', icon: Settings },
-    { id: 'help', label: 'Help', icon: HelpCircle }
+    { id: 'help', label: 'Help', icon: HelpCircle },
   ];
 
   return (
     <nav className="bg-gray-800 border-b border-gray-700 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
-          {navItems.map(item => (
+          {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveView(item.id)}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                activeView === item.id 
-                  ? 'bg-teal-600 text-white' 
+                activeView === item.id
+                  ? 'bg-teal-600 text-white'
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
             >
