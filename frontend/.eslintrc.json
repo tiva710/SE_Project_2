@@ -23,5 +23,14 @@
   },
   "settings": {
     "react": { "version": "detect" }
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.js", "**/__tests__/**/*.jsx"],
+      "env": {
+        "jest": true,
+        "node": true
+      }
+    }
+  ]
 }
