@@ -49,7 +49,7 @@ This document provides step-by-step instructions to install, configure, run, and
 ```bash
   cd backend
   curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
-bash Miniforge3-MacOSX-arm64.sh
+  bash Miniforge3-MacOSX-arm64.sh
   conda create -n se_project python=3.11 faiss-cpu -c conda-forge
   conda activate se_project
   pip install openai-whisper  
