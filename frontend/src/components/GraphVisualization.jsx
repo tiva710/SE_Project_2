@@ -78,9 +78,7 @@ function GraphVisualization({ data }) {
     setErr(null);
     try {
       if (view === 'All Nodes') {
-        const [feat, stake] = await Promise.all([
-          getOverview(500)
-        ]);
+        const [feat, stake] = await Promise.all([getOverview(500)]);
         const A = normalizeGraph(feat);
         const B = normalizeGraph(stake);
         // de-duplicate nodes by id
