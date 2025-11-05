@@ -1,13 +1,22 @@
+# app/api/v1/routes_transcribe.py
+
+from pprint import pprint
 from fastapi import APIRouter, UploadFile, File, Query
 import whisper
 import tempfile
 import os
 from datetime import datetime
+
 from app.services.vector_service import (
     add_transcription_to_faiss,
     search_similar_transcripts,
     initialize_index,  # ✅ ensures persistence on startup
 )
+
+# NEW: import NER entrypoint
+# Prefer a thin wrapper like run_ner_to_neo4j() if you've added it in nlp_service.
+# Fallback builds the RequirementsNERToNeo4j engine inline if wrapper missing.
+from app.services import nlp_service  # provides NER processing
 
 # --------------------------------------------------------
 # Initialize router
@@ -31,14 +40,14 @@ try:
 except Exception as e:
     print(f"⚠️ Could not initialize FAISS in transcribe route: {e}")
 
-
 # --------------------------------------------------------
-# 🎧 Upload + Transcribe
+# 🎧 Upload + Transcribe + NER
 # --------------------------------------------------------
 @router.post("/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):
     """
     Transcribes an uploaded audio file using Whisper,
+    runs NER to extract entities/relationships,
     persists transcription in FAISS vector store,
     and keeps an in-memory reference.
     """
@@ -52,9 +61,27 @@ async def transcribe_audio(file: UploadFile = File(...)):
         # ✅ Run Whisper transcription
         result = model.transcribe(tmp_path)
         text = result.get("text", "").strip()
+        print(text)
 
         # ✅ Clean up temporary file
-        os.remove(tmp_path)
+        try:
+            os.remove(tmp_path)
+        except Exception:
+            pass
+
+        # ✅ Run NER immediately on the transcript
+        try:
+            # If a convenience wrapper exists in nlp_service:
+            if hasattr(nlp_service, "run_ner_to_neo4j"):
+                ner_output = nlp_service.run_ner_to_neo4j(text)
+                pprint(ner_output)
+                  # returns Neo4j-ready dict
+            else:
+                # Fallback: construct the engine directly
+                from app.services.nlp_service import RequirementsNERToNeo4j
+                ner_output = RequirementsNERToNeo4j(use_spacy=True).process_text(text)
+        except Exception as ner_exc:
+            ner_output = {"error": f"NER failed: {ner_exc}"}
 
         # ✅ Build structured entry
         entry = {
@@ -62,12 +89,13 @@ async def transcribe_audio(file: UploadFile = File(...)):
             "filename": file.filename,
             "text": text,
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "ner": ner_output,  # include NER result
         }
 
         # ✅ Save to memory
         TRANSCRIPTIONS.append(entry)
 
-        # ✅ Persist to FAISS index
+        # ✅ Persist to FAISS index (with metadata including NER)
         try:
             add_transcription_to_faiss(entry)
             print(f"✅ Added '{file.filename}' to FAISS index.")
@@ -82,7 +110,6 @@ async def transcribe_audio(file: UploadFile = File(...)):
     except Exception as e:
         return {"error": f"❌ Transcription failed: {str(e)}"}
 
-
 # --------------------------------------------------------
 # 📋 Retrieve All Transcriptions
 # --------------------------------------------------------
@@ -92,7 +119,6 @@ async def get_all_transcriptions():
     Returns all stored transcriptions (from memory).
     """
     return {"count": len(TRANSCRIPTIONS), "transcriptions": TRANSCRIPTIONS}
-
 
 # --------------------------------------------------------
 # 🔍 Semantic Search
@@ -110,7 +136,6 @@ async def search_transcriptions(
         return {"query": q, "results": results}
     except Exception as e:
         return {"error": f"Search failed: {str(e)}"}
-
 
 # --------------------------------------------------------
 # 🧩 (Optional) Manual FAISS Rebuild Endpoint
