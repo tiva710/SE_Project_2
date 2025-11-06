@@ -14,7 +14,37 @@ For detailed use cases, see [USE_CASES.md](docs/USE_CASES.md)
 ---
 
 ## Road Map 
-Milestones  
+Completed Milestones (October)
+- User Auth + Frontend: JWT login/signup · React UI · role scaffolding · responsive dashboard
+- Audio Upload + Transcription: FastAPI upload · OpenAI Whisper speech-to-text · auto storage
+- Transcript Vectorisation + AI Chat: FAISS embeddings · semantic search · LLM drafts user reqs
+- NER-driven Graph Build: NER on transcripts extracts entities to create nodes/edges.
+- Graph Visualisation: Neo4j + React Flow · nodes (Req/Feat/Test/Stakeholder) · edges (depends/validates/owns)
+
+Future Milestones (November)
+- Save/load conversation sessions 
+-- session versioning 
+-- resume interrupted conversations 
+-- session comparison 
+-- export conversation history
+- Graph Comparison - 
+-- Compare two graph versions 
+-- highlight differences 
+-- merge graphs
+-- track evolution over time
+- Custom Graph Views & Perspectives  
+-- Save personalized graph layouts 
+-- stakeholder-specific views 
+-- dependency-focused views 
+-- feature cluster views 
+-- timeline view
+- Software Design Document Generation 
+-- Automatically generate architecture diagrams from graph structure 
+-- create component specifications from requirement nodes 
+-- generate interface designs from relationships 
+-- produce design rationale from conversation context 
+-- export design docs in standard formats (Markdown/PDF)
+
 
 ---
 
