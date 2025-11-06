@@ -8,6 +8,7 @@ import os
 import uuid
 import hashlib
 from datetime import datetime
+from app.services.nlp_service import run_ner_to_neo4j
 
 from app.services.vector_service import (
     add_transcription_to_faiss,
@@ -82,17 +83,28 @@ async def transcribe_audio(file: UploadFile = File(...)):
                 "graph_data": graph_data,
                 "skipped": True,
             }
+        
+        ner_output = run_ner_to_neo4j("""Login Feature depends on Authentication Module and Session Management Component. The Login Feature must satisfy the security requirements and the usability requirements. Reporting Module is owned by Analytics Team and supported by Security Team. Test Case TC-101 and TC-102 validate the Authentication Module. API Rate Limit Constraint applies to the Payment Feature and the Reporting Module. The Distributed Ledger Architecture Design implements the Smart Contract Verification Feature and satisfies the immutability requirements. Audit Trail Component is derived from the Event Sourcing System. Checkout Feature refines the conversion requirements. DevOps Team is responsible for the deployment requirements""", always_restore_punct=True)
+        rels = ner_output.get("relationships", [])
+        ents = ner_output.get("entities", [])
 
-        # NEW AUDIO: Run NER
-        try:
-            if hasattr(nlp_service, "run_ner_to_neo4j"):
-                ner_output = nlp_service.run_ner_to_neo4j(text)
-                pprint(ner_output)
-            else:
-                from app.services.nlp_service import RequirementsNERToNeo4j
-                ner_output = RequirementsNERToNeo4j(use_spacy=True).process_text(text)
-        except Exception as ner_exc:
-            ner_output = {"error": f"NER failed: {ner_exc}"}
+        print(f"🔢 Entities: {len(ents)} | 🔗 Relationships: {len(rels)}")
+        if len(rels) == 0:
+            print("⚠️ Zero relationships — verify wording uses triggers like "
+                  "'depends on', 'is owned by', 'supported by', 'must satisfy', 'applies to', "
+                  "'validates', 'implements', 'refines', 'derived from', 'responsible for'.")
+
+
+        # # NEW AUDIO: Run NER
+        # try:
+        #     if hasattr(nlp_service, "run_ner_to_neo4j"):
+        #         ner_output = nlp_service.run_ner_to_neo4j(text)
+        #         pprint(ner_output)
+        #     else:
+        #         from app.services.nlp_service import RequirementsNERToNeo4j
+        #         ner_output = RequirementsNERToNeo4j(use_spacy=True).process_text(text)
+        # except Exception as ner_exc:
+        #     ner_output = {"error": f"NER failed: {ner_exc}"}
 
         # Generate unique conversation_id for this extraction run
         conversation_id = f"rec_{uuid.uuid4().hex[:12]}"
