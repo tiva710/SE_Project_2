@@ -29,7 +29,6 @@ git+https://github.com/openai/whisper.git@v20230314
 # --- Graph / Neo4j ---
 neo4j==6.0.2
 neo4j-driver==5.28.2
-python-dotenv==1.0.0
 requests==2.32.0
 nltk==3.8.1
 pandas==2.1.1
