@@ -1,0 +1,474 @@
+openapi: 3.1.0
+info:
+  title: ReqTrace Graph Backend
+  description: API for conversation, graph, stats, and health endpoints
+  version: 1.0.0
+paths:
+  /conversation/chat:
+    post:
+      tags:
+      - conversation
+      summary: Chat With Context
+      description: Handles chat queries using FAISS context + OpenAI (new SDK).
+      operationId: chat_with_context_conversation_chat_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              title: Payload
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/graph/all:
+    get:
+      tags:
+      - graph
+      - graph
+      summary: All Graph
+      description: Fetch all nodes and relationships across the entire graph database.
+      operationId: all_graph_api_graph_all_get
+      parameters:
+      - required: false
+        schema:
+          type: integer
+          maximum: 10000.0
+          minimum: 100.0
+          title: Limit
+          default: 5000
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/graph/stakeholders/overview:
+    get:
+      tags:
+      - graph
+      - graph
+      summary: Stakeholders Overview
+      operationId: stakeholders_overview_api_graph_stakeholders_overview_get
+      parameters:
+      - required: false
+        schema:
+          type: integer
+          maximum: 2000.0
+          minimum: 1.0
+          title: Limit
+          default: 200
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/graph/features/overview:
+    get:
+      tags:
+      - graph
+      - graph
+      summary: Features Overview
+      operationId: features_overview_api_graph_features_overview_get
+      parameters:
+      - required: false
+        schema:
+          type: integer
+          maximum: 2000.0
+          minimum: 1.0
+          title: Limit
+          default: 200
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/graph/stakeholders/neighborhood:
+    get:
+      tags:
+      - graph
+      - graph
+      summary: Stakeholder Neighborhood
+      operationId: stakeholder_neighborhood_api_graph_stakeholders_neighborhood_get
+      parameters:
+      - description: Center node id, e.g., stakeholder.pm
+        required: true
+        schema:
+          type: string
+          title: Id
+          description: Center node id, e.g., stakeholder.pm
+        name: id
+        in: query
+      - required: false
+        schema:
+          type: integer
+          maximum: 5.0
+          minimum: 1.0
+          title: K
+          default: 1
+        name: k
+        in: query
+      - required: false
+        schema:
+          type: integer
+          maximum: 5000.0
+          minimum: 10.0
+          title: Limit
+          default: 500
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/graph/features/neighborhood:
+    get:
+      tags:
+      - graph
+      - graph
+      summary: Feature Neighborhood
+      operationId: feature_neighborhood_api_graph_features_neighborhood_get
+      parameters:
+      - description: Center node id, e.g., feature.checkout
+        required: true
+        schema:
+          type: string
+          title: Id
+          description: Center node id, e.g., feature.checkout
+        name: id
+        in: query
+      - required: false
+        schema:
+          type: integer
+          maximum: 5.0
+          minimum: 1.0
+          title: K
+          default: 1
+        name: k
+        in: query
+      - required: false
+        schema:
+          type: integer
+          maximum: 5000.0
+          minimum: 10.0
+          title: Limit
+          default: 500
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/graph/conversation/{conversation_id}:
+    get:
+      tags:
+      - graph
+      - graph
+      summary: Conversation Graph
+      description: 'Fetch graph scoped to a specific conversation/recording ID.
+
+        Returns only nodes and relationships tagged with that recording_id.'
+      operationId: conversation_graph_api_graph_conversation__conversation_id__get
+      parameters:
+      - required: true
+        schema:
+          type: string
+          title: Conversation Id
+        name: conversation_id
+        in: path
+      - required: false
+        schema:
+          type: integer
+          maximum: 10000.0
+          minimum: 1.0
+          title: Limit
+          default: 2000
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health/health:
+    get:
+      tags:
+      - health
+      summary: Health Check
+      operationId: health_check_health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /transcribe/transcribe:
+    post:
+      tags:
+      - transcribe
+      - Transcription
+      summary: Transcribe Audio
+      description: 'Transcribes an uploaded audio file using Whisper,
+
+        runs NER to extract entities/relationships,
+
+        tags them with a unique recording_id and audio_id,
+
+        writes the graph to Neo4j,
+
+        persists transcription in FAISS vector store,
+
+        and returns the conversation_id for scoped graph queries.'
+      operationId: transcribe_audio_transcribe_transcribe_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_transcribe_audio_transcribe_transcribe_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /transcribe/transcriptions:
+    get:
+      tags:
+      - transcribe
+      - Transcription
+      summary: Get All Transcriptions
+      operationId: get_all_transcriptions_transcribe_transcriptions_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /transcribe/search:
+    get:
+      tags:
+      - transcribe
+      - Transcription
+      summary: Search Transcriptions
+      operationId: search_transcriptions_transcribe_search_get
+      parameters:
+      - description: Search query for transcript similarity
+        required: true
+        schema:
+          type: string
+          title: Q
+          description: Search query for transcript similarity
+        name: q
+        in: query
+      - description: Number of most similar results to return
+        required: false
+        schema:
+          type: integer
+          title: Top K
+          description: Number of most similar results to return
+          default: 3
+        name: top_k
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /transcribe/rebuild:
+    post:
+      tags:
+      - transcribe
+      - Transcription
+      summary: Rebuild Faiss Index
+      operationId: rebuild_faiss_index_transcribe_rebuild_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /:
+    get:
+      tags:
+      - root
+      summary: Root
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Body_transcribe_audio_transcribe_transcribe_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_transcribe_audio_transcribe_transcribe_post
+    GraphResponse:
+      properties:
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        links:
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+          title: Links
+      type: object
+      required:
+      - nodes
+      - links
+      title: GraphResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Link:
+      properties:
+        type:
+          type: string
+          title: Type
+        source:
+          type: string
+          title: Source
+        target:
+          type: string
+          title: Target
+        props:
+          type: object
+          title: Props
+      type: object
+      required:
+      - type
+      - source
+      - target
+      title: Link
+    Node:
+      properties:
+        id:
+          type: string
+          title: Id
+        label:
+          type: string
+          title: Label
+        props:
+          type: object
+          title: Props
+      type: object
+      required:
+      - id
+      - label
+      title: Node
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
