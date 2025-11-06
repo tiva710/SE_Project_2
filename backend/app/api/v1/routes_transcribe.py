@@ -84,7 +84,9 @@ async def transcribe_audio(file: UploadFile = File(...)):
                 "skipped": True,
             }
         
-        ner_output = run_ner_to_neo4j("""Login Feature depends on Authentication Module and Session Management Component. The Login Feature must satisfy the security requirements and the usability requirements. Reporting Module is owned by Analytics Team and supported by Security Team. Test Case TC-101 and TC-102 validate the Authentication Module. API Rate Limit Constraint applies to the Payment Feature and the Reporting Module. The Distributed Ledger Architecture Design implements the Smart Contract Verification Feature and satisfies the immutability requirements. Audit Trail Component is derived from the Event Sourcing System. Checkout Feature refines the conversion requirements. DevOps Team is responsible for the deployment requirements""", always_restore_punct=True)
+        # ner_output = run_ner_to_neo4j("""Login Feature depends on Authentication Module and Session Management Component. The Login Feature must satisfy the security requirements and the usability requirements. Reporting Module is owned by Analytics Team and supported by Security Team. Test Case TC-101 and TC-102 validate the Authentication Module. API Rate Limit Constraint applies to the Payment Feature and the Reporting Module. The Distributed Ledger Architecture Design implements the Smart Contract Verification Feature and satisfies the immutability requirements. Audit Trail Component is derived from the Event Sourcing System. Checkout Feature refines the conversion requirements. DevOps Team is responsible for the deployment requirements""", always_restore_punct=True)
+        ner_output = run_ner_to_neo4j(text, always_restore_punct=True)
+
         rels = ner_output.get("relationships", [])
         ents = ner_output.get("entities", [])
 
