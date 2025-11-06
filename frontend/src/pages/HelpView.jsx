@@ -9,19 +9,11 @@ function HelpView() {
         {[
           {
             title: 'Getting Started',
-            content: '',
+            content: 'Start by logging in through the Sidebar! Afterwards, feel free to upload a requirements discussion audio file or begin chatting in the conversation window with OpenAIs embedded LLM chatbot. A requirements graph fit with custom nodes will appear. You can continue refinement with the conversation, or download the graph for yourself! Please review the About page for more information and help-seeking resources. ',
           },
           {
             title: 'Understanding the Graph',
-            content: '',
-          },
-          {
-            title: 'View Modes',
-            content: '',
-          },
-          {
-            title: 'Exporting Data',
-            content: '',
+            content: 'The interactive requirements graph represents the relationships and dependencies that emerge from project discussions and transcripts. Each node in the graph corresponds to an entity extracted from conversations - such as requirements, features, tests, or stakeholders. Edges (connections) show how these entities relate: for example, a feature that depends on another, a test that validates a requirement, or a stakeholder that owns a deliverable. By exploring the graph, users can trace how ideas evolve from spoken discussions into structured, traceable requirements, helping teams spot missing links, redundant efforts, or unaligned expectations in real time.',
           },
         ].map((item, i) => (
           <div key={i} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
