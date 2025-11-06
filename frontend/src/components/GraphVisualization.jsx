@@ -9,6 +9,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
     TestCase: true,
     Feature: true,
     Constraint: true,
+    Team: true,
     Entity: true, // Temporary - in case nodes have Entity label
   });
   const [activeView, setActiveView] = useState('All Nodes');
@@ -16,7 +17,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
   const [err, setErr] = useState(null);
   const fgRef = useRef();
 
-  const views = ['All Nodes', 'Stakeholder Impact', 'Feature Clusters'];
+  const views = ['All Nodes'];
 
   const toggleFilter = (filterName) => {
     setActiveFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
@@ -28,6 +29,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
     if (t === 'Constraint') return '#dc2626';
     if (t === 'Requirement') return '#7c3aed';
     if (t === 'TestCase') return '#f59e0b';
+    if (t === 'Team') return '#ec4899';
     return '#6b7280'; // fallback gray
   };
 
@@ -42,12 +44,13 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
       // Get label from various locations - this is the node type
       const label = n.label ?? n.type ?? n.props?.label ?? 'Node';
       
-      // Get display name from properties
+      // Get display name from properties - THIS IS KEY FOR TOOLTIP
       const name = 
         n.name ??
         n.props?.name ??
         n.props?.role ??
         n.props?.title ??
+        id.split(':')[1]?.replace(/_/g, ' ') ?? // Extract from id if no name
         label;
 
       console.log(`Node ${id}: label="${label}", name="${name}", props=`, n.props);
@@ -56,13 +59,14 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
         ...n, 
         id, 
         label,  // This is the type (Stakeholder, Requirement, etc.)
-        name,   // This is the display name
+        name,   // This is the display name FOR TOOLTIP
         type: label // Also set type to match label for compatibility
       };
     });
 
-    const index = new Set(nodes.map((n) => n.id));
+    const nodeIds = new Set(nodes.map((n) => n.id));
 
+    // Filter links to only include those where both nodes exist
     const links = rawLinks
       .map((l) => {
         const s =
@@ -73,12 +77,25 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
           typeof l.target === 'object'
             ? l.target?.id
             : l.target ?? l.to ?? l.end ?? l.dst ?? l.v ?? l.t;
-        return { ...l, source: s, target: t };
+        
+        const relType = l.type ?? l.label ?? 'RELATED_TO';
+        
+        return { ...l, source: s, target: t, type: relType };
       })
-      .filter((l) => index.has(l.source) && index.has(l.target));
+      .filter((l) => {
+        const hasSource = nodeIds.has(l.source);
+        const hasTarget = nodeIds.has(l.target);
+        
+        if (!hasSource || !hasTarget) {
+          console.warn(`Skipping link: ${l.source} -> ${l.target} (source exists: ${hasSource}, target exists: ${hasTarget})`);
+        }
+        
+        return hasSource && hasTarget;
+      });
 
     console.log('Normalized nodes:', nodes);
     console.log('Node labels found:', [...new Set(nodes.map(n => n.label))]);
+    console.log('Valid links:', links.length, 'out of', rawLinks.length);
     
     return { nodes, links };
   };
@@ -117,7 +134,6 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
     
     const nodes = (graph.nodes ?? []).filter((n) => {
       const matches = enabledTypes.has(n.label) || enabledTypes.has(n.type);
-      console.log(`Node ${n.id} label="${n.label}" matches=${matches}`);
       return matches;
     });
     
@@ -134,7 +150,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
   }, [graph, activeFilters]);
 
   const nodeCanvasObject = (node, ctx, globalScale) => {
-    const label = node.name || node.id || '';
+    const displayName = node.name || node.id || '';
     const color = colorForType(node.label || node.type);
     const r = 10;
 
@@ -153,7 +169,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
     if (globalScale > 1.2) {
       ctx.font = `${Math.max(6, 10 / globalScale)}px Inter, sans-serif`;
       ctx.fillStyle = '#9ca3af';
-      ctx.fillText(label, node.x, node.y + 16);
+      ctx.fillText(displayName, node.x, node.y + 16);
     }
   };
 
@@ -222,12 +238,18 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
                 width={undefined}
                 height={undefined}
                 backgroundColor="#111827"
+                nodeLabel={(node) => node.name || node.id}
+                linkLabel={(link) => link.type || 'RELATED_TO'}
                 linkColor={() => '#6b7280'}
-                linkDirectionalParticles={0}
-                linkWidth={1}
+                linkDirectionalParticles={2}
+                linkDirectionalParticleWidth={2}
+                linkWidth={2}
                 cooldownTicks={90}
                 nodeRelSize={6}
                 nodeCanvasObject={nodeCanvasObject}
+                onNodeClick={(node) => {
+                  console.log('Node clicked:', node);
+                }}
               />
             </div>
           )}
