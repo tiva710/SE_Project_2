@@ -10,14 +10,9 @@ openai==1.48.0
 sentence-transformers==2.7.0
 # spacy==3.5.4
 # coreferee==1.4.0
-nltk==3.8.1
 transformers==4.44.2
 torch==2.4.0
 torchaudio==2.4.0
-numpy==1.26.2
-pandas==2.1.1
-scikit-learn==1.3.2
-httpx==0.25.2
 
 # --- Vector Database ---
 faiss-cpu==1.8.0.post1
@@ -29,7 +24,6 @@ git+https://github.com/openai/whisper.git@v20230314
 # --- Graph / Neo4j ---
 neo4j==6.0.2
 neo4j-driver==5.28.2
-requests==2.32.0
 nltk==3.8.1
 pandas==2.1.1
 numpy==1.26.2
