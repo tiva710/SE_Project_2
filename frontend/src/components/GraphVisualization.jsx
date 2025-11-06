@@ -17,7 +17,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
   const [err, setErr] = useState(null);
   const fgRef = useRef();
 
-  const views = ['All Nodes'];
+  const views = ['All Nodes',  'Stakeholder Impact', 'Feature Clusters'];
 
   const toggleFilter = (filterName) => {
     setActiveFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
