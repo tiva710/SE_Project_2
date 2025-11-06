@@ -163,6 +163,16 @@ def _dedupe_relationships(rels: List[Dict]) -> List[Dict]:
             out.append(r)
     return out
 
+def _validate_relationships(relationships: List[Dict], emap: Dict[str, Dict]) -> List[Dict]:
+    """Filter out relationships where source or target doesn't exist in emap."""
+    valid_rels = []
+    for rel in relationships:
+        if rel["source"] in emap and rel["target"] in emap:
+            valid_rels.append(rel)
+        else:
+            print(f"⚠️ Skipping invalid relationship: {rel}")
+    return valid_rels
+
 def _extract_relationships(sentences: List[str], emap: Dict[str, Dict]) -> List[Dict]:
     rels: List[Dict] = []
     for sent in sentences:
@@ -225,14 +235,21 @@ def run_ner_to_neo4j(text: str, always_restore_punct: bool = True) -> Dict:
       2) Extract entities via stricter rules with span cleanup.
       3) Extract relationships via expanded templates with coordination.
       4) Dedupe relationships.
+      5) Ensure all entities referenced in relationships are included.
     Returns {'entities': [...], 'relationships': [...]}.
     """
     text = _restore_punctuation(text, force=always_restore_punct)
     entities, emap = _extract_entities(text)
     sentences = _split_sentences(text)
     relationships = _extract_relationships(sentences, emap)
-
-    result = {"entities": entities, "relationships": relationships}
+    
+    # Fix: Get all entities from emap (includes dynamically added ones during relationship extraction)
+    all_entities = list(emap.values())
+    
+    # Optional: Validate that all relationship nodes exist
+    relationships = _validate_relationships(relationships, emap)
+    
+    result = {"entities": all_entities, "relationships": relationships}
 
     # Optional logging
     try:
