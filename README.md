@@ -23,23 +23,23 @@ Completed Milestones (October)
 
 
 Future Milestones (November)
-•	Save/load conversation sessions
+- •Save/load conversation sessions
     o	session versioning 
     o	resume interrupted conversations
     o	session comparison 
     o	export conversation history
-•	Graph Comparison  
+- •Graph Comparison  
     o	Compare two graph versions 
     o	highlight differences 
     o	merge graphs
     o	track evolution over time
-•	Custom Graph Views & Perspectives  
+- •Custom Graph Views & Perspectives  
     o	Save personalized graph layouts 
     o	Stakeholder-specific views 
     o	Dependency-focused views 
     o	feature cluster views 
     o	timeline view
-•	Software Design Document Generation 
+- •Software Design Document Generation 
     o	Automatically generate architecture diagrams from graph structure 
     o	create component specifications from requirement nodes 
     o	generate interface designs from relationships 
