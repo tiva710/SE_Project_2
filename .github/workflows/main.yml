@@ -38,6 +38,8 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install pytest pytest-cov
+          pip install python-multipart
+          pip install deepmultilingualpunctuation
 
       # 5️⃣ Run tests with coverage
       - name: Run tests with coverage
