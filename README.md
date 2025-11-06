@@ -14,37 +14,42 @@ For detailed use cases, see [USE_CASES.md](docs/USE_CASES.md)
 ---
 
 ## Road Map 
-Completed Milestones (October)
-- User Auth + Frontend: JWT login/signup · React UI · role scaffolding · responsive dashboard
-- Audio Upload + Transcription: FastAPI upload · OpenAI Whisper speech-to-text · auto storage
-- Transcript Vectorisation + AI Chat: FAISS embeddings · semantic search · LLM drafts user reqs
-- NER-driven Graph Build: NER on transcripts extracts entities to create nodes/edges.
-- Graph Visualisation: Neo4j + React Flow · nodes (Req/Feat/Test/Stakeholder) · edges (depends/validates/owns)
 
 
-Future Milestones (November)
-- •Save/load conversation sessions
-    o	session versioning 
-    o	resume interrupted conversations
-    o	session comparison 
-    o	export conversation history
-- •Graph Comparison  
-    o	Compare two graph versions 
-    o	highlight differences 
-    o	merge graphs
-    o	track evolution over time
-- •Custom Graph Views & Perspectives  
-    o	Save personalized graph layouts 
-    o	Stakeholder-specific views 
-    o	Dependency-focused views 
-    o	feature cluster views 
-    o	timeline view
-- •Software Design Document Generation 
-    o	Automatically generate architecture diagrams from graph structure 
-    o	create component specifications from requirement nodes 
-    o	generate interface designs from relationships 
-    o	produce design rationale from conversation context 
-    o	export design docs in standard formats (Markdown/PDF)
+### Completed Milestones (October)
+- **User Auth + Frontend:** JWT login/signup, React UI, role scaffolding, responsive dashboard  
+- **Audio Upload + Transcription:** FastAPI upload, OpenAI Whisper speech-to-text, auto storage  
+- **Transcript Vectorisation + AI Chat:** FAISS embeddings, semantic search, LLM drafts user requirements  
+- **NER-driven Graph Build:** NER on transcripts extracts entities to create nodes/edges  
+- **Graph Visualisation:** Neo4j + React Flow (nodes: Req/Feat/Test/Stakeholder; edges: depends/validates/owns)  
+
+### Future Milestones (November)
+- **Save/Load Conversation Sessions**
+  - Session versioning  
+  - Resume interrupted conversations  
+  - Session comparison  
+  - Export conversation history  
+
+- **Graph Comparison**
+  - Compare two graph versions  
+  - Highlight differences  
+  - Merge graphs  
+  - Track evolution over time  
+
+- **Custom Graph Views & Perspectives**
+  - Save personalized graph layouts  
+  - Stakeholder-specific views  
+  - Dependency-focused views  
+  - Feature cluster views  
+  - Timeline view  
+
+- **Software Design Document Generation**
+  - Automatically generate architecture diagrams from graph structure  
+  - Create component specifications from requirement nodes  
+  - Generate interface designs from relationships  
+  - Produce design rationale from conversation context  
+  - Export design docs in standard formats (Markdown/PDF)
+
 
 
 
