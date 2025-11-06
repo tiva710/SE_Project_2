@@ -131,16 +131,6 @@ function AboutView() {
               </li>
               <li>
                 <a
-                  href={`${wikiUrl}/Usage-Guide`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-teal-400 hover:text-teal-300 hover:underline"
-                >
-                  💡 Usage Guide
-                </a>
-              </li>
-              <li>
-                <a
                   href={`${docsUrl}/USE_CASES.md`}
                   target="_blank"
                   rel="noopener noreferrer"
