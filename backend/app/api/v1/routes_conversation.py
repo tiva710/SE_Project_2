@@ -16,8 +16,14 @@ dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env")
 load_dotenv(dotenv_path=dotenv_path)
 
 print(f"✅ Loaded .env from: {os.path.abspath(dotenv_path)}")
-print(f"✅ OPENAI_API_KEY starts with: {os.getenv('OPENAI_API_KEY')[:10]}")
+# Replace line 19 in app/api/v1/routes_conversation.py with:
 
+api_key = os.getenv('OPENAI_API_KEY')
+if api_key:
+    print(f"✅ OPENAI_API_KEY starts with: {api_key[:10]}")
+else:
+    print("⚠️  OPENAI_API_KEY is not set")
+    
 # ✅ Initialize OpenAI client using loaded API key
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
