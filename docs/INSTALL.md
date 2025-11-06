@@ -47,7 +47,15 @@ This document provides step-by-step instructions to install, configure, run, and
 1. Create & activate virtual environment
 
 ```bash
+  For Conda installation, open MacOs terminal
+  curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
+  bash Miniforge3-MacOSX-arm64.sh
+
+
+  Open a new terminal in your IDE and run:
   cd backend
+  ls ~/miniforge3/bin/conda
+  ~/miniforge3/bin/conda init zsh
   conda create -n se_project python=3.11 faiss-cpu -c conda-forge
   conda activate se_project
   pip install openai-whisper     
@@ -56,11 +64,11 @@ This document provides step-by-step instructions to install, configure, run, and
 2. Install Python dependencies
 
 ```bash
-  pip install --upgrade pip
+  pip install --upgrade pip 
   pip install -r requirements.txt
   brew install ffmpeg
-  python -m spacy download en_core_web_sm
-  python -m coreferee install en
+  pip install python-multipart
+  pip install deepmultilingualpunctuation
   /Applications/Python\ 3.11/Install\ Certificates.command
 
 ```
@@ -88,9 +96,10 @@ This document provides step-by-step instructions to install, configure, run, and
 
   pip install
   pip install -r requirements.txt
-  python -m spacy download en_core_web_sm
   python -m coreferee install en
   brew install ffmpeg
+  pip install python-multipart
+  pip install deepmultilingualpunctuation
 
 
 
