@@ -22,11 +22,11 @@ Completed Milestones (October)
 - Graph Visualisation: Neo4j + React Flow · nodes (Req/Feat/Test/Stakeholder) · edges (depends/validates/owns)
 
 Future Milestones (November)
-- Save/load conversation sessions 
--- session versioning 
--- resume interrupted conversations 
--- session comparison 
--- export conversation history
+- Save/load conversation sessions
+  *session versioning 
+  *resume interrupted conversations
+  *session comparison 
+  *export conversation history
 - Graph Comparison - 
 -- Compare two graph versions 
 -- highlight differences 
