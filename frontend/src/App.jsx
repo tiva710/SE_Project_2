@@ -12,26 +12,58 @@ function App() {
   const [graphData, setGraphData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [graphReady, setGraphReady] = useState(false);
+  const [transcriptId, setTranscriptId] = useState(null);
+
+  // Add callback
+  const handleGraphReady = ({ transcriptId }) => {
+    setTranscriptId(transcriptId ?? null);
+    setGraphReady(true);
+  };
+
+  // Add callback to handle transcription complete with graph data
+  const handleTranscribeComplete = ({ graphData, conversationId, audioId, skipped, raw }) => {
+    console.log('App received transcribe complete:', { graphData, conversationId, audioId, skipped });
+    
+    if (graphData) {
+      setGraphData(graphData);
+      setGraphReady(true);
+    }
+    
+    if (conversationId) {
+      setTranscriptId(conversationId);
+      setGraphReady(true);
+    }
+  };
 
   const handleSendMessage = (msg) => {
     setMessages([...messages, { id: Date.now(), text: msg, sender: 'user' }]);
     setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        text: 'Processing your request...', 
-        sender: 'assistant' 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: 'Processing your request...',
+          sender: 'assistant',
+        },
+      ]);
       setGraphData(mockGraphData);
     }, 500);
   };
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100">
-      <Sidebar 
-        isOpen={sidebarOpen} 
+      <Sidebar
+        isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onUpload={() => setGraphData(mockGraphData)}
-        onClearGraph={() => setGraphData(null)}
+        onClearGraph={() => {
+          setGraphData(null);
+          setGraphReady(false);
+          setTranscriptId(null);
+        }}
+        onGraphReady={handleGraphReady}
+        onTranscribeComplete={handleTranscribeComplete}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -40,9 +72,11 @@ function App() {
         <main className="flex-1 overflow-auto p-6">
           {activeView === 'home' && (
             <HomeView 
-              graphData={graphData}
-              messages={messages}
-              onSendMessage={handleSendMessage}
+              graphData={graphData} 
+              graphReady={graphReady} 
+              transcriptId={transcriptId} 
+              messages={messages} 
+              onSendMessage={handleSendMessage} 
             />
           )}
           {activeView === 'about' && <AboutView />}

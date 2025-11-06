@@ -58,6 +58,11 @@ This document provides step-by-step instructions to install, configure, run, and
 ```bash
   pip install --upgrade pip
   pip install -r requirements.txt
+  brew install ffmpeg
+  python -m spacy download en_core_web_sm
+  python -m coreferee install en
+  /Applications/Python\ 3.11/Install\ Certificates.command
+
 ```
 
 3. Update Neo4j credentials
@@ -83,6 +88,11 @@ This document provides step-by-step instructions to install, configure, run, and
 
   pip install
   pip install -r requirements.txt
+  python -m spacy download en_core_web_sm
+  python -m coreferee install en
+  brew install ffmpeg
+
+
 
   #Update Neo4j credentials in backend\app\services
 
@@ -97,8 +107,10 @@ This document provides step-by-step instructions to install, configure, run, and
   cd frontend
   npm install
 ```
+2. Update OAuth credentials 
+- Rename ```.env.template``` to ```.env``` and replace ```YOUR_GOOGLE_CLIENT_ID``` with your respective client ID 
 
-2. Start development server
+3. Start development server
 ```bash
   npm run dev 
 ```

@@ -1,10 +1,10 @@
-import axios from "axios";
+import axios from 'axios';
 
-const API_BASE =  "http://localhost:8000";
+const API_BASE = 'http://localhost:8000';
 
 export const api = axios.create({
   baseURL: API_BASE,
-  headers: { Accept: "application/json" },
+  headers: { Accept: 'application/json' },
   withCredentials: true,
   timeout: 15000,
 });
@@ -20,13 +20,16 @@ api.interceptors.response.use(
 );
 
 export const getStakeholdersOverview = (limit = 200) =>
-  api.get("/api/graph/stakeholders/overview", { params: { limit } }).then(r => r.data);
+  api.get('/api/graph/stakeholders/overview', { params: { limit } }).then((r) => r.data);
+
+export const getOverview = (limit = 200) =>
+  api.get('/api/graph/all', { params: { limit } }).then((r) => r.data);
 
 export const getFeaturesOverview = (limit = 200) =>
-  api.get("/api/graph/features/overview", { params: { limit } }).then(r => r.data);
+  api.get('/api/graph/features/overview', { params: { limit } }).then((r) => r.data);
 
 export const getStakeholderNeighborhood = (id, k = 1, limit = 500) =>
-  api.get("/api/graph/stakeholders/neighborhood", { params: { id, k, limit } }).then(r => r.data);
+  api.get('/api/graph/stakeholders/neighborhood', { params: { id, k, limit } }).then((r) => r.data);
 
 export const getFeatureNeighborhood = (id, k = 1, limit = 500) =>
-  api.get("/api/graph/features/neighborhood", { params: { id, k, limit } }).then(r => r.data);
+  api.get('/api/graph/features/neighborhood', { params: { id, k, limit } }).then((r) => r.data);

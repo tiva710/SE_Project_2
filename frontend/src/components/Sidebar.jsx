@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
-function Sidebar({ isOpen, onToggle, onClearGraph }) {
+function Sidebar({ isOpen, onToggle, onClearGraph, onGraphReady, onTranscribeComplete }) {
   const { user, logout } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [transcriptions, setTranscriptions] = useState([]);
@@ -22,55 +22,116 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
 
   // 🎧 Handle audio upload
   const handleAudioUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  setUploading(true);
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const res = await axios.post(
-      "http://127.0.0.1:8000/transcribe/transcribe",
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-
-    console.log("Backend response:", res.data); // 🧠 Debug line
-
-    // ✅ Safely handle both structures
-    const entry = res.data.entry || res.data?.data?.entry;
-    if (entry) {
-      setTranscriptions((prev) => [entry, ...prev]);
-      alert(`✅ Transcribed: ${file.name}`);
-    } else if (res.data.message) {
-      alert(`✅ ${res.data.message}`);
-    } else {
-      console.warn("Unexpected backend response:", res.data);
-      alert("⚠️ Unexpected backend response (check console)");
+    const file = e.target.files[0];
+    if (!file) return;
+    console.log(file.type);
+    if (!['audio/mpeg','audio/mp3', 'audio/wav', 'audio/m4a'].includes(file.type)) {
+      window.alert('Unsupported file type!');
+      return;
     }
-  } catch (err) {
-    console.error("Upload failed:", err.response || err.message);
-    const message =
-      err.response?.data?.error ||
-      err.response?.statusText ||
-      err.message ||
-      "Unknown error";
-    alert(`❌ Error during transcription upload: ${message}`);
-  } finally {
-    setUploading(false);
-  }
-};
 
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await axios.post('http://127.0.0.1:8000/transcribe/transcribe', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      console.log('Backend response:', res.data);
+      console.log('Full response structure:', JSON.stringify(res.data, null, 2));
+
+      // Extract data from various possible response structures
+      const entry = res.data.entry || res.data?.data?.entry;
+      const conversationId = res.data?.conversation_id || res.data?.data?.conversation_id || null;
+      const audioId = res.data?.audio_id || res.data?.data?.audio_id || null;
+      const skipped = !!res.data?.skipped || !!res.data?.data?.skipped;
+      
+      // Try multiple paths to find graph_data
+      let graphData = null;
+      if (res.data?.graph_data) {
+        graphData = res.data.graph_data;
+      } else if (res.data?.data?.graph_data) {
+        graphData = res.data.data.graph_data;
+      } else if (res.data?.nodes) {
+        // Sometimes the graph data is at the root level
+        graphData = { nodes: res.data.nodes, links: res.data.links || [] };
+      } else if (res.data?.data?.nodes) {
+        graphData = { nodes: res.data.data.nodes, links: res.data.data.links || [] };
+      }
+
+      console.log('Extracted graphData:', graphData);
+      console.log('Extracted conversationId:', conversationId);
+      console.log('Extracted audioId:', audioId);
+
+      if (entry) {
+        setTranscriptions((prev) => [entry, ...prev]);
+        alert(`✅ Transcribed: ${file.name}`);
+      } else if (res.data.message) {
+        alert(`✅ ${res.data.message}`);
+      }
+
+      // Always call the callbacks if they exist
+      if (onGraphReady && conversationId) {
+        console.log('Calling onGraphReady with conversationId:', conversationId);
+        onGraphReady({ transcriptId: conversationId });
+      }
+      
+      if (typeof onTranscribeComplete === 'function') {
+        console.log('Calling onTranscribeComplete with:', {
+          graphData,
+          conversationId,
+          audioId,
+          skipped,
+        });
+        onTranscribeComplete({
+          graphData,
+          conversationId,
+          audioId,
+          skipped,
+          raw: res.data,
+        });
+      }
+
+      if (!entry && !res.data.message) {
+        console.warn('Unexpected backend response:', res.data);
+        alert('⚠️ Unexpected backend response (check console)');
+      }
+
+    } catch (err) {
+      console.error('Upload failed:', err.response || err.message);
+      const message =
+        err.response?.data?.error || err.response?.statusText || err.message || 'Unknown error';
+      alert(`❌ Error during transcription upload: ${message}`);
+      if (typeof onTranscribeComplete === 'function') {
+        onTranscribeComplete({
+          graphData: null,
+          conversationId: null,
+          audioId: null,
+          skipped: false,
+          raw: err?.response?.data,
+        });
+      }
+    } finally {
+        setUploading(false);
+        if (e?.target) e.target.value = ''; // allow re-select same file
+    }
+  };
 
   // Mock session history: will be replaced w real data from backend
-  const sessionHistory = user 
-  ? [
-    { id: 1, name: 'Requirements Discussion', date: '2024-10-20', nodes: 12 },
-    { id: 2, name: 'Feature Planning', date: '2024-10-19', nodes: 8 },
-    { id: 3, name: 'Stakeholder Meeting', date: '2024-10-18', nodes: 15 },
-  ]
-  : [];
+  const sessionHistory = user
+    ? [
+        {
+          id: 1,
+          name: 'Requirements Discussion',
+          date: '2024-10-20',
+          nodes: 12,
+        },
+        { id: 2, name: 'Feature Planning', date: '2024-10-19', nodes: 8 },
+        { id: 3, name: 'Stakeholder Meeting', date: '2024-10-18', nodes: 15 },
+      ]
+    : [];
 
   if (!isOpen) {
     return (
@@ -97,45 +158,35 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
       <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
         <div className="flex items-center gap-3">
           {user?.picture ? (
-            <img
-              src={user.picture}
-              alt="User avatar"
-              className="w-10 h-10 rounded-full"
-            />
-          ) : (         
+            <img src={user.picture} alt="User avatar" className="w-10 h-10 rounded-full" />
+          ) : (
             <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
               <User className="w-5 h-5" />
             </div>
           )}
           <div className="flex-1">
-            <p className="text-sm font-medium">
-              {user ? user.email : "Guest User"}
-            </p>
-            <p className="text-xs text-gray-400">
-              {user ? user.email: "Not logged in"}
-            </p>
+            <p className="text-sm font-medium">{user ? user.email : 'Guest User'}</p>
+            <p className="text-xs text-gray-400">{user ? user.email : 'Not logged in'}</p>
           </div>
         </div>
-        {!user && <LoginButton/>}
+        {!user && <LoginButton />}
         {user && (
           <button
             onClick={logout}
             className="w-full mt-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors"
-          >Logout</button>
+          >
+            Logout
+          </button>
         )}
       </div>
 
       {/* 🎧 Audio Upload Section */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">
-          Audio Upload
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-400 uppercase">Audio Upload</h3>
         <label className="block">
           <div className="flex items-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 rounded-lg cursor-pointer transition-colors">
             <Upload className="w-5 h-5" />
-            <span className="font-medium">
-              {uploading ? 'Uploading...' : 'Upload Audio'}
-            </span>
+            <span className="font-medium">{uploading ? 'Uploading...' : 'Upload Audio'}</span>
           </div>
           <input
             type="file"
@@ -150,9 +201,7 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
 
       {/* ⚡ Quick Actions */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">
-          Quick Actions
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-400 uppercase">Quick Actions</h3>
 
         {/* Show Transcriptions Button */}
         <button
@@ -170,36 +219,24 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
           )}
         </button>
 
-
         {/* Transcriptions Dropdown */}
         {showTranscriptions && (
           <div
             className="mt-2 bg-gray-800 border border-gray-700 rounded-lg p-2"
-            style={{ maxHeight: '420px', overflowY: 'auto' }}   // list scroll
+            style={{ maxHeight: '420px', overflowY: 'auto' }}
           >
             {transcriptions.length > 0 ? (
               transcriptions.map((t) => (
-                <div
-                  key={t.id}
-                  className="mb-3 p-3 bg-gray-700 rounded-lg"
-                >
-                  {/* filename – no truncate; wrap long names */}
-                  <p className="font-semibold text-teal-400 break-words">
-                    {t.filename}
-                  </p>
-
-                  {/* FULL transcript – no line clamp; its own scroll if very long */}
+                <div key={t.id} className="mb-3 p-3 bg-gray-700 rounded-lg">
+                  <p className="font-semibold text-teal-400 break-words">{t.filename}</p>
                   <div className="mt-1 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed text-sm text-gray-100">
                     {t.text}
                   </div>
-
                   <p className="text-[10px] text-gray-400 mt-2">{t.timestamp}</p>
                 </div>
               ))
             ) : (
-              <p className="text-xs text-gray-500 text-center py-2">
-                No transcriptions yet.
-              </p>
+              <p className="text-xs text-gray-500 text-center py-2">No transcriptions yet.</p>
             )}
           </div>
         )}
@@ -222,9 +259,7 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
         </h3>
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {sessionHistory.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-4">
-              No previous sessions
-            </p>
+            <p className="text-xs text-gray-500 text-center py-4">No previous sessions</p>
           ) : (
             sessionHistory.map((session) => (
               <button
@@ -236,9 +271,7 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
                     <p className="text-sm font-medium truncate">{session.name}</p>
                     <p className="text-xs text-gray-400">{session.date}</p>
                   </div>
-                  <span className="text-xs text-teal-400 ml-2">
-                    {session.nodes} nodes
-                  </span>
+                  <span className="text-xs text-teal-400 ml-2">{session.nodes} nodes</span>
                 </div>
               </button>
             ))
@@ -248,9 +281,7 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
 
       {/* Footer */}
       <div className="pt-4 border-t border-gray-700">
-        <p className="text-xs text-gray-500 text-center">
-          💾 Sessions saved automatically
-        </p>
+        <p className="text-xs text-gray-500 text-center">💾 Sessions saved automatically</p>
       </div>
     </aside>
   );

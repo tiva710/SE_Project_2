@@ -6,9 +6,8 @@ function SettingsView() {
       <h1 className="text-3xl font-bold text-teal-400 mb-6">Settings</h1>
 
       <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 space-y-6">
-
         <div>
-          <h3 className="text-lg font-semibold mb-4">Graph Preferences</h3>
+          <h3 className="text-lg font-semibold mb-4">Graph Preferences (future milestone) </h3>
           <div className="space-y-3">
             <label className="flex items-center gap-2">
               <input type="checkbox" defaultChecked className="rounded" />
