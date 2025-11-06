@@ -21,29 +21,31 @@ Completed Milestones (October)
 - NER-driven Graph Build: NER on transcripts extracts entities to create nodes/edges.
 - Graph Visualisation: Neo4j + React Flow · nodes (Req/Feat/Test/Stakeholder) · edges (depends/validates/owns)
 
+
 Future Milestones (November)
-- Save/load conversation sessions
-  *session versioning 
-  *resume interrupted conversations
-  *session comparison 
-  *export conversation history
-- Graph Comparison - 
--- Compare two graph versions 
--- highlight differences 
--- merge graphs
--- track evolution over time
-- Custom Graph Views & Perspectives  
--- Save personalized graph layouts 
--- stakeholder-specific views 
--- dependency-focused views 
--- feature cluster views 
--- timeline view
-- Software Design Document Generation 
--- Automatically generate architecture diagrams from graph structure 
--- create component specifications from requirement nodes 
--- generate interface designs from relationships 
--- produce design rationale from conversation context 
--- export design docs in standard formats (Markdown/PDF)
+•	Save/load conversation sessions
+    o	session versioning 
+    o	resume interrupted conversations
+    o	session comparison 
+    o	export conversation history
+•	Graph Comparison  
+    o	Compare two graph versions 
+    o	highlight differences 
+    o	merge graphs
+    o	track evolution over time
+•	Custom Graph Views & Perspectives  
+    o	Save personalized graph layouts 
+    o	Stakeholder-specific views 
+    o	Dependency-focused views 
+    o	feature cluster views 
+    o	timeline view
+•	Software Design Document Generation 
+    o	Automatically generate architecture diagrams from graph structure 
+    o	create component specifications from requirement nodes 
+    o	generate interface designs from relationships 
+    o	produce design rationale from conversation context 
+    o	export design docs in standard formats (Markdown/PDF)
+
 
 
 ---
