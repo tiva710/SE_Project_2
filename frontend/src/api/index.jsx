@@ -23,7 +23,7 @@ export const getStakeholdersOverview = (limit = 200) =>
   api.get('/api/graph/stakeholders/overview', { params: { limit } }).then((r) => r.data);
 
 export const getOverview = (limit = 200) =>
-  api.get("/api/graph/all", { params: { limit } }).then(r => r.data);
+  api.get('/api/graph/all', { params: { limit } }).then((r) => r.data);
 
 export const getFeaturesOverview = (limit = 200) =>
   api.get('/api/graph/features/overview', { params: { limit } }).then((r) => r.data);
