@@ -11,10 +11,10 @@ function AboutView() {
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Project Overview */}
       <div>
-        <h1 className="text-4xl font-bold text-teal-400 mb-4">About ReqTrace-Graph</h1>
+        <h1 className="text-4xl font-bold text-teal-400 mb-4">About ReqTrace</h1>
         <p className="text-gray-300 text-lg leading-relaxed mb-6">
           Requirements discussions often produce scattered, unstructured information that's
-          difficult to track and trace. ReqTrace-Graph automatically transforms natural language
+          difficult to track and trace. ReqTrace automatically transforms natural language
           conversations with LLMs into interactive, navigable knowledge graphs that reveal hidden
           dependencies, stakeholder impacts, and feature relationships.
         </p>
@@ -53,11 +53,10 @@ function AboutView() {
           <ul className="space-y-2 text-gray-300">
             <li>✓ Real-time entity extraction from conversations</li>
             <li>✓ Automated relationship detection</li>
-            <li>✓ Interactive graph visualization with multiple views</li>
+            <li>✓ Interactive graph visualization</li>
             <li>✓ Dependency chain analysis</li>
             <li>✓ Stakeholder impact mapping</li>
             <li>✓ Bidirectional conversation-graph updates</li>
-            <li>✓ Export capabilities (JSON, Cypher, RTM)</li>
           </ul>
         </div>
 
@@ -68,7 +67,7 @@ function AboutView() {
               • <strong>Frontend:</strong> React, Tailwind CSS, Vite
             </li>
             <li>
-              • <strong>Backend:</strong> Python 3.11, FastAPI
+              • <strong>Backend:</strong> Python 3.11, FastAPI, OpenAI
             </li>
             <li>
               • <strong>Database:</strong> Neo4j (Graph DB)
@@ -305,40 +304,12 @@ function AboutView() {
 
           <div>
             <h4 className="font-semibold text-gray-200 mb-2">Test Coverage</h4>
-            <p className="text-gray-400">130+ test cases ensuring reliability</p>
+            <p className="text-gray-400">approx. 120 test cases ensuring reliability</p>
           </div>
 
           <div>
             <h4 className="font-semibold text-gray-200 mb-2">Accessibility</h4>
             <p className="text-gray-400">WCAG 2.1 compliant design</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Roadmap */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-xl font-semibold text-teal-400 mb-4">Project Roadmap</h3>
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-green-400 mb-2">✓ Completed (October Milestones)</h4>
-            <ul className="space-y-1 text-sm text-gray-300 ml-4">
-              <li>• Real-time entity extraction from LLM conversations</li>
-              <li>• Automated relationship detection and graph construction</li>
-              <li>• Interactive graph visualization with multiple perspectives</li>
-              <li>• Conversation-to-graph bidirectional updates</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold text-teal-400 mb-2">
-              → In Progress (November Milestones)
-            </h4>
-            <ul className="space-y-1 text-sm text-gray-300 ml-4">
-              <li>• Advanced dependency chain analysis</li>
-              <li>• Multi-conversation merge and conflict resolution</li>
-              <li>• Export capabilities (RTM format, JSON, Cypher)</li>
-              <li>• Collaborative multi-user editing with version control</li>
-            </ul>
           </div>
         </div>
       </div>
@@ -349,7 +320,7 @@ function AboutView() {
           Built with ❤️ by the ReqTrace Team
         </h3>
         <p className="text-gray-400 text-sm">
-          A Software Engineering Project focused on innovative requirements traceability solutions
+          An Open Sourc Software Engineering Project focused on innovative requirements traceability solutions
         </p>
       </div>
     </div>
