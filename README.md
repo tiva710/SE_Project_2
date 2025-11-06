@@ -65,6 +65,7 @@ License:
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Doi: 
+[![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.17544380-blue.svg)](https://doi.org/10.5281/zenodo.17544380)
 
 ### Tests & Code Quality
 [![Backend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml)
