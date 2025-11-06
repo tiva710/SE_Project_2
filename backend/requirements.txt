@@ -11,15 +11,15 @@ sentence-transformers==2.7.0
 # spacy==3.5.4
 # coreferee==1.4.0
 transformers==4.44.2
-torch==2.4.0
-torchaudio==2.4.0
+# Let pip resolve compatible versions automatically
+torch
+torchaudio
+openai-whisper
 
 # --- Vector Database ---
 faiss-cpu==1.8.0.post1
 pickle-mixin==1.0.2
 
-# --- Speech-to-Text (Whisper) ---
-git+https://github.com/openai/whisper.git@v20230314
 
 # --- Graph / Neo4j ---
 neo4j==6.0.2
