@@ -17,7 +17,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
   const [err, setErr] = useState(null);
   const fgRef = useRef();
 
-  const views = ['All Nodes'];
+  const views = ['All Nodes',  'Stakeholder Impact', 'Feature Clusters'];
 
   const toggleFilter = (filterName) => {
     setActiveFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
@@ -45,13 +45,26 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
       const label = n.label ?? n.type ?? n.props?.label ?? 'Node';
       
       // Get display name from properties - THIS IS KEY FOR TOOLTIP
-      const name = 
-        n.name ??
-        n.props?.name ??
-        n.props?.role ??
-        n.props?.title ??
-        id.split(':')[1]?.replace(/_/g, ' ') ?? // Extract from id if no name
-        label;
+      // Priority: name property > role > title > extract from id
+      let name = n.name ?? n.props?.name ?? n.props?.role ?? n.props?.title;
+      
+      // If still no name, try to extract from id
+      if (!name && id) {
+        // Remove recording_id suffix (e.g., "requirement:login_rec_123" -> "requirement:login")
+        const cleanId = id.replace(/_rec_[a-f0-9]+$/i, '');
+        // Extract the meaningful part after the colon
+        const parts = cleanId.split(':');
+        if (parts.length > 1) {
+          name = parts[1].replace(/_/g, ' ');
+        } else {
+          name = cleanId.replace(/_/g, ' ');
+        }
+      }
+      
+      // Final fallback
+      if (!name) {
+        name = label;
+      }
 
       console.log(`Node ${id}: label="${label}", name="${name}", props=`, n.props);
 
@@ -238,7 +251,7 @@ function GraphVisualization({ graphData, graphReady, transcriptId }) {
                 width={undefined}
                 height={undefined}
                 backgroundColor="#111827"
-                nodeLabel={(node) => node.name || node.id}
+                nodeLabel={(node) => `${node.label}: ${node.name || node.id}`}
                 linkLabel={(link) => link.type || 'RELATED_TO'}
                 linkColor={() => '#6b7280'}
                 linkDirectionalParticles={2}

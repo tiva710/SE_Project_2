@@ -14,7 +14,44 @@ For detailed use cases, see [USE_CASES.md](docs/USE_CASES.md)
 ---
 
 ## Road Map 
-Milestones  
+
+
+### Completed Milestones (October)
+- **User Auth + Frontend:** JWT login/signup, React UI, role scaffolding, responsive dashboard  
+- **Audio Upload + Transcription:** FastAPI upload, OpenAI Whisper speech-to-text, auto storage  
+- **Transcript Vectorisation + AI Chat:** FAISS embeddings, semantic search, LLM drafts user requirements  
+- **NER-driven Graph Build:** NER on transcripts extracts entities to create nodes/edges  
+- **Graph Visualisation:** Neo4j + React Flow (nodes: Req/Feat/Test/Stakeholder; edges: depends/validates/owns)  
+
+### Future Milestones (November)
+- **Save/Load Conversation Sessions**
+  - Session versioning  
+  - Resume interrupted conversations  
+  - Session comparison  
+  - Export conversation history  
+
+- **Graph Comparison**
+  - Compare two graph versions  
+  - Highlight differences  
+  - Merge graphs  
+  - Track evolution over time  
+
+- **Custom Graph Views & Perspectives**
+  - Save personalized graph layouts  
+  - Stakeholder-specific views  
+  - Dependency-focused views  
+  - Feature cluster views  
+  - Timeline view  
+
+- **Software Design Document Generation**
+  - Automatically generate architecture diagrams from graph structure  
+  - Create component specifications from requirement nodes  
+  - Generate interface designs from relationships  
+  - Produce design rationale from conversation context  
+  - Export design docs in standard formats (Markdown/PDF)
+
+
+
 
 ---
 
@@ -53,6 +90,10 @@ npm run dev
 ##  ReqTrace Demo
 Watch a quick video of ReqTrace in action! 
 
+
+[![Watch the Demo on Google Drive](https://img.shields.io/badge/Watch%20REQTRACE%20Demo-Click%20Here-blue?style=for-the-badge&logo=google-drive)](https://drive.google.com/file/d/1XiaWd48iLaMvRkev5WwzB4xIv7sPceyf/view?usp=drive_link)
+
+
 ---
 
 ## Documentation
@@ -65,6 +106,7 @@ License:
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Doi: 
+[![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.17544380-blue.svg)](https://doi.org/10.5281/zenodo.17544380)
 
 ### Tests & Code Quality
 [![Backend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml)

@@ -53,10 +53,12 @@ This document provides step-by-step instructions to install, configure, run, and
 
 
   Open a new terminal in your IDE and run:
+  cd backend
   ls ~/miniforge3/bin/conda
   ~/miniforge3/bin/conda init zsh
   conda create -n se_project python=3.11 faiss-cpu -c conda-forge
   conda activate se_project
+  pip install openai-whisper     
 ```
 
 2. Install Python dependencies
