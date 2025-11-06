@@ -24,6 +24,12 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
   const handleAudioUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    console.log(file.type);
+    if (!['audio/mpeg','audio/mp3', 'audio/wav', 'audio/m4a'].includes(file.type)) {
+      window.alert('Unsupported file type!'); // <-- add this
+      return;
+    }
+   
 
     setUploading(true);
     const formData = new FormData();
