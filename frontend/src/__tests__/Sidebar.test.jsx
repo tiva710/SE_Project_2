@@ -167,7 +167,6 @@ describe('Sidebar Component', () => {
     const file = new File(['audio content'], 'test.mp3', { type: 'audio/mp3' });
 
     // Find the file input
-    const inputs = screen.getAllByRole('button', { hidden: true });
     const label = screen.getByText(/Upload Audio/i).closest('label');
     const input = label?.querySelector('input[type="file"]');
 
