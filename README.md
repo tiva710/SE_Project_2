@@ -89,6 +89,10 @@ npm run dev
 
 ##  ReqTrace Demo
 Watch a quick video of ReqTrace in action! 
+![REQTRACE Demo Preview](assets/demo-preview.png)
+
+[![Watch the Demo on Google Drive](https://img.shields.io/badge/Watch%20REQTRACE%20Demo-Click%20Here-blue?style=for-the-badge&logo=google-drive)](https://drive.google.com/file/d/1XiaWd48iLaMvRkev5WwzB4xIv7sPceyf/view?usp=drive_link)
+
 
 ---
 
