@@ -52,3 +52,19 @@ def feature_neighborhood(
     if not data["nodes"]:
         raise HTTPException(status_code=404, detail=f"No nodes found around id={id}")
     return GraphResponse(**data)
+
+@router.get("/conversation/{conversation_id}", response_model=GraphResponse)
+def conversation_graph(conversation_id: str, limit: int = Query(2000, ge=1, le=10000)):
+    """
+    Fetch graph scoped to a specific conversation/recording ID.
+    Returns only nodes and relationships tagged with that recording_id.
+    """
+    from app.services.neo4j_service import fetch_graph_for_recording
+    
+    data = fetch_graph_for_recording(conversation_id, limit=limit)
+    if not data["nodes"]:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"No nodes found for conversation {conversation_id}"
+        )
+    return GraphResponse(**data)
