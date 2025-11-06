@@ -11,7 +11,7 @@ import {
 import GraphVisualization from '../components/GraphVisualization';
 import ChatInterface from '../components/ChatInterface';
 
-function HomeView({ graphData, messages, onSendMessage }) {
+function HomeView({ graphData, messages, onSendMessage, graphReady, transcriptId }) {
   const [splitPosition, setSplitPosition] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
@@ -110,7 +110,7 @@ function HomeView({ graphData, messages, onSendMessage }) {
             </div>
           </div>
           <div className="flex-1 overflow-hidden">
-            <GraphVisualization data={graphData} />
+            <GraphVisualization graphData={graphData} graphReady={graphReady} transcriptId={transcriptId} />
           </div>
         </div>
 

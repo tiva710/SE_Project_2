@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
-function Sidebar({ isOpen, onToggle, onClearGraph }) {
+function Sidebar({ isOpen, onToggle, onClearGraph, onGraphReady, onTranscribeComplete }) {
   const { user, logout } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [transcriptions, setTranscriptions] = useState([]);
@@ -26,10 +26,9 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
     if (!file) return;
     console.log(file.type);
     if (!['audio/mpeg','audio/mp3', 'audio/wav', 'audio/m4a'].includes(file.type)) {
-      window.alert('Unsupported file type!'); // <-- add this
+      window.alert('Unsupported file type!');
       return;
     }
-   
 
     setUploading(true);
     const formData = new FormData();
@@ -40,26 +39,83 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      console.log('Backend response:', res.data); // 🧠 Debug line
+      console.log('Backend response:', res.data);
+      console.log('Full response structure:', JSON.stringify(res.data, null, 2));
 
-      // ✅ Safely handle both structures
+      // Extract data from various possible response structures
       const entry = res.data.entry || res.data?.data?.entry;
+      const conversationId = res.data?.conversation_id || res.data?.data?.conversation_id || null;
+      const audioId = res.data?.audio_id || res.data?.data?.audio_id || null;
+      const skipped = !!res.data?.skipped || !!res.data?.data?.skipped;
+      
+      // Try multiple paths to find graph_data
+      let graphData = null;
+      if (res.data?.graph_data) {
+        graphData = res.data.graph_data;
+      } else if (res.data?.data?.graph_data) {
+        graphData = res.data.data.graph_data;
+      } else if (res.data?.nodes) {
+        // Sometimes the graph data is at the root level
+        graphData = { nodes: res.data.nodes, links: res.data.links || [] };
+      } else if (res.data?.data?.nodes) {
+        graphData = { nodes: res.data.data.nodes, links: res.data.data.links || [] };
+      }
+
+      console.log('Extracted graphData:', graphData);
+      console.log('Extracted conversationId:', conversationId);
+      console.log('Extracted audioId:', audioId);
+
       if (entry) {
         setTranscriptions((prev) => [entry, ...prev]);
         alert(`✅ Transcribed: ${file.name}`);
       } else if (res.data.message) {
         alert(`✅ ${res.data.message}`);
-      } else {
+      }
+
+      // Always call the callbacks if they exist
+      if (onGraphReady && conversationId) {
+        console.log('Calling onGraphReady with conversationId:', conversationId);
+        onGraphReady({ transcriptId: conversationId });
+      }
+      
+      if (typeof onTranscribeComplete === 'function') {
+        console.log('Calling onTranscribeComplete with:', {
+          graphData,
+          conversationId,
+          audioId,
+          skipped,
+        });
+        onTranscribeComplete({
+          graphData,
+          conversationId,
+          audioId,
+          skipped,
+          raw: res.data,
+        });
+      }
+
+      if (!entry && !res.data.message) {
         console.warn('Unexpected backend response:', res.data);
         alert('⚠️ Unexpected backend response (check console)');
       }
+
     } catch (err) {
       console.error('Upload failed:', err.response || err.message);
       const message =
         err.response?.data?.error || err.response?.statusText || err.message || 'Unknown error';
       alert(`❌ Error during transcription upload: ${message}`);
+      if (typeof onTranscribeComplete === 'function') {
+        onTranscribeComplete({
+          graphData: null,
+          conversationId: null,
+          audioId: null,
+          skipped: false,
+          raw: err?.response?.data,
+        });
+      }
     } finally {
-      setUploading(false);
+        setUploading(false);
+        if (e?.target) e.target.value = ''; // allow re-select same file
     }
   };
 
@@ -167,19 +223,15 @@ function Sidebar({ isOpen, onToggle, onClearGraph }) {
         {showTranscriptions && (
           <div
             className="mt-2 bg-gray-800 border border-gray-700 rounded-lg p-2"
-            style={{ maxHeight: '420px', overflowY: 'auto' }} // list scroll
+            style={{ maxHeight: '420px', overflowY: 'auto' }}
           >
             {transcriptions.length > 0 ? (
               transcriptions.map((t) => (
                 <div key={t.id} className="mb-3 p-3 bg-gray-700 rounded-lg">
-                  {/* filename – no truncate; wrap long names */}
                   <p className="font-semibold text-teal-400 break-words">{t.filename}</p>
-
-                  {/* FULL transcript – no line clamp; its own scroll if very long */}
                   <div className="mt-1 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed text-sm text-gray-100">
                     {t.text}
                   </div>
-
                   <p className="text-[10px] text-gray-400 mt-2">{t.timestamp}</p>
                 </div>
               ))
