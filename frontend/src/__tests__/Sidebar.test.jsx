@@ -4,11 +4,14 @@ import Sidebar from '../components/Sidebar';
 import { AuthContext } from '../context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import axios from 'axios';
+import { act } from '@testing-library/react';
 
 jest.mock('axios');
 
 const mockToggle = jest.fn();
 const mockClearGraph = jest.fn();
+const mockGraphReady = jest.fn();
+const mockTranscribeComplete = jest.fn();
 const mockLogout = jest.fn();
 
 beforeAll(() => {
@@ -30,7 +33,13 @@ describe('Sidebar Component', () => {
 
   test('renders collapsed sidebar button when isOpen=false', () => {
     renderWithProviders(
-      <Sidebar isOpen={false} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={false} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
@@ -38,7 +47,13 @@ describe('Sidebar Component', () => {
 
   test('renders sidebar header and user info when open (guest)', () => {
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
     expect(screen.getByText(/ReqTrace/i)).toBeInTheDocument();
     expect(screen.getByText(/Guest User/i)).toBeInTheDocument();
@@ -48,11 +63,16 @@ describe('Sidebar Component', () => {
   test('renders sidebar header and user info when open (logged-in)', () => {
     const user = { email: 'test@example.com', picture: 'avatar.png' };
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />,
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />,
       { user }
     );
 
-    // Use getAllByText to handle multiple matches
     const emailElements = screen.getAllByText(user.email);
     expect(emailElements.length).toBeGreaterThan(0);
     expect(emailElements[0]).toBeInTheDocument();
@@ -63,7 +83,13 @@ describe('Sidebar Component', () => {
 
   test('clicking Clear Graph calls onClearGraph', () => {
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
     const clearBtn = screen.getByText(/Clear Graph/i);
     fireEvent.click(clearBtn);
@@ -73,7 +99,13 @@ describe('Sidebar Component', () => {
   test('clicking logout calls logout function', () => {
     const user = { email: 'test@example.com' };
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />,
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />,
       { user }
     );
     const logoutBtn = screen.getByText(/Logout/i);
@@ -83,76 +115,117 @@ describe('Sidebar Component', () => {
 
   test('transcriptions dropdown toggles', async () => {
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
 
     const toggleBtn = screen.getByText(/Show Transcriptions/i);
 
-    // Should be hidden initially
-    expect(screen.queryByText(/No previous sessions/i)).toBeInTheDocument();
-
-    fireEvent.click(toggleBtn);
+    // Should show "No transcriptions yet" when opened
+    await act(async () => {
+      fireEvent.click(toggleBtn);
+    });
+    
     await waitFor(() => {
-      expect(screen.queryByText(/No previous sessions/i)).toBeInTheDocument();
+      expect(screen.getByText(/No transcriptions yet/i)).toBeInTheDocument();
     });
 
-    //click again to close
-    fireEvent.click(toggleBtn);
+    // Click again to close
+    await act(async () => {
+      fireEvent.click(toggleBtn);
+    });
+    
     await waitFor(() => {
-      expect(screen.queryByText(/No previous sessions/i)).toBeInTheDocument();
+      expect(screen.queryByText(/No transcriptions yet/i)).not.toBeInTheDocument();
     });
   });
 
   test('audio upload calls backend and updates transcriptions', async () => {
     const mockData = {
       entry: { id: 1, filename: 'test.mp3', text: 'Hello World', timestamp: '10:00' },
+      conversation_id: 'rec_123',
+      audio_id: 'audio_456',
+      graph_data: { nodes: [], links: [] },
     };
     axios.post.mockResolvedValue({ data: mockData });
 
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
 
     const file = new File(['audio content'], 'test.mp3', { type: 'audio/mp3' });
 
-    // Select hidden input
-    const input =
-      screen.getByLabelText(/Upload Audio/i, { selector: 'input' }) ||
-      screen.getByText(/Upload Audio/i).closest('input');
+    // Find the file input
+    const inputs = screen.getAllByRole('button', { hidden: true });
+    const label = screen.getByText(/Upload Audio/i).closest('label');
+    const input = label?.querySelector('input[type="file"]');
 
-    fireEvent.change(input, { target: { files: [file] } });
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
 
-    await waitFor(() =>
+    await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
-        expect.any(String),
+        expect.stringContaining('transcribe'),
         expect.any(FormData),
         expect.any(Object)
-      )
-    );
+      );
+    });
+
+    expect(mockTranscribeComplete).toHaveBeenCalled();
   });
 
   test('rejects invalid file type upload', async () => {
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
 
     const file = new File(['content'], 'invalid.txt', { type: 'text/plain' });
-    const input =
-      screen.getByLabelText(/Upload Audio/i, { selector: 'input' }) ||
-      screen.getByText(/Upload Audio/i).closest('input');
+    const label = screen.getByText(/Upload Audio/i).closest('label');
+    const input = label?.querySelector('input[type="file"]');
 
-    fireEvent.change(input, { target: { files: [file] } });
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+
     expect(window.alert).toHaveBeenCalledWith('Unsupported file type!');
+    expect(axios.post).not.toHaveBeenCalled();
   });
 
   test('clearing graph updates UI', async () => {
     renderWithProviders(
-      <Sidebar isOpen={true} onToggle={mockToggle} onClearGraph={mockClearGraph} />
+      <Sidebar 
+        isOpen={true} 
+        onToggle={mockToggle} 
+        onClearGraph={mockClearGraph}
+        onGraphReady={mockGraphReady}
+        onTranscribeComplete={mockTranscribeComplete}
+      />
     );
 
     const clearBtn = screen.getByText(/Clear Graph/i);
-    fireEvent.click(clearBtn);
+    
+    await act(async () => {
+      fireEvent.click(clearBtn);
+    });
 
-    await waitFor(() => expect(screen.queryByText(/Session 1/i)).not.toBeInTheDocument());
+    expect(mockClearGraph).toHaveBeenCalledTimes(1);
   });
 });

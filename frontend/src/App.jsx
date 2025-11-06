@@ -22,7 +22,7 @@ function App() {
   };
 
   // Add callback to handle transcription complete with graph data
-  const handleTranscribeComplete = ({ graphData, conversationId, audioId, skipped, raw }) => {
+  const handleTranscribeComplete = ({ graphData, conversationId, audioId, skipped }) => {
     console.log('App received transcribe complete:', { graphData, conversationId, audioId, skipped });
     
     if (graphData) {

@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ChatInterface from '../components/ChatInterface';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { act } from '@testing-library/react';
 
 jest.mock('axios');
 
@@ -48,7 +49,9 @@ describe('ChatInterface Component', () => {
     render(<ChatInterface />);
     const input = screen.getByPlaceholderText(/Ask about your transcripts.../i);
 
-    await userEvent.type(input, 'Integrate calendar{enter}');
+    await act(async () => {
+      await userEvent.type(input, 'Integrate calendar{enter}');
+    });
 
     const botMessage = await screen.findByText(/Calendar integrated/i);
 
@@ -68,10 +71,14 @@ describe('ChatInterface Component', () => {
     const input = screen.getByPlaceholderText(/Ask about your transcripts.../i);
     const button = screen.getByRole('button', { name: /send/i });
 
-    fireEvent.change(input, { target: { value: 'Auto-clear test' } });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Auto-clear test' } });
+      fireEvent.click(button);
+    });
 
-    expect(input.value).toBe('');
+    await waitFor(() => {
+      expect(input.value).toBe('');
+    });
   });
 
   test('does not send empty messages', () => {
@@ -88,8 +95,10 @@ describe('ChatInterface Component', () => {
     const input = screen.getByPlaceholderText(/Ask about your transcripts.../i);
     const button = screen.getByRole('button', { name: /send/i });
 
-    fireEvent.change(input, { target: { value: 'Test loading' } });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Test loading' } });
+      fireEvent.click(button);
+    });
 
     expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
   });
@@ -101,8 +110,10 @@ describe('ChatInterface Component', () => {
     const input = screen.getByPlaceholderText(/Ask about your transcripts.../i);
     const button = screen.getByRole('button', { name: /send/i });
 
-    fireEvent.change(input, { target: { value: 'Fail test' } });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Fail test' } });
+      fireEvent.click(button);
+    });
 
     const errorMessage = await screen.findByText(/⚠️ Error: Unable to reach backend./i);
     expect(errorMessage).toBeInTheDocument();
@@ -117,12 +128,18 @@ describe('ChatInterface Component', () => {
     const input = screen.getByPlaceholderText(/Ask about your transcripts.../i);
     const button = screen.getByRole('button', { name: /send/i });
 
-    fireEvent.change(input, { target: { value: 'Message 1' } });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Message 1' } });
+      fireEvent.click(button);
+    });
+    
     await screen.findByText(/First reply/i);
 
-    fireEvent.change(input, { target: { value: 'Message 2' } });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Message 2' } });
+      fireEvent.click(button);
+    });
+    
     await screen.findByText(/Second reply/i);
 
     expect(screen.getByText(/First reply/i)).toBeInTheDocument();

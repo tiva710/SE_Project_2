@@ -90,7 +90,6 @@ function Sidebar({ isOpen, onToggle, onClearGraph, onGraphReady, onTranscribeCom
           conversationId,
           audioId,
           skipped,
-          raw: res.data,
         });
       }
 
@@ -110,7 +109,6 @@ function Sidebar({ isOpen, onToggle, onClearGraph, onGraphReady, onTranscribeCom
           conversationId: null,
           audioId: null,
           skipped: false,
-          raw: err?.response?.data,
         });
       }
     } finally {
