@@ -108,6 +108,9 @@ License:
 Doi: 
 [![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.17544380-blue.svg)](https://doi.org/10.5281/zenodo.17544380)
 
+### Code Coverage Reporting (Codecov) 
+[![codecov](https://codecov.io/gh/tiva710/SE_Project_2/branch/main/graph/badge.svg)](https://app.codecov.io/gh/tiva710/SE_Project_2)
+
 ### Tests & Code Quality
 [![Backend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/main.yml)
 [![Frontend CI](https://github.com/tiva710/SE_Project_2/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/tiva710/SE_Project_2/actions/workflows/frontend-tests.yml)
