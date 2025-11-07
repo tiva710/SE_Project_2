@@ -17,7 +17,7 @@ For detailed use cases, see [USE_CASES.md](docs/USE_CASES.md)
 
 
 ### Completed Milestones (October)
-- **User Auth + Frontend:** JWT login/signup, React UI, role scaffolding, responsive dashboard  
+- **User Auth + Frontend:** Google Oauth login/signup, React UI, role scaffolding, responsive dashboard  
 - **Audio Upload + Transcription:** FastAPI upload, OpenAI Whisper speech-to-text, auto storage  
 - **Transcript Vectorisation + AI Chat:** FAISS embeddings, semantic search, LLM drafts user requirements  
 - **NER-driven Graph Build:** NER on transcripts extracts entities to create nodes/edges  
